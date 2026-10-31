@@ -1,0 +1,902 @@
+<title>AFLYT Night Ops</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one fixed night street on top, the order desk below. Nothing pans; only the people move. */
+:root{
+  --night:#0b0f14; --street:#141a22; --desk:#10151c; --raise:#18202a; --line:#27313f;
+  --ink:#e8e2d3; --dim:#8e97a4; --sodium:#e3a64a; --alarm:#e25b4e; --ok:#7db8a3; --guard:#d98a7e;
+  --f-display:"Big Shoulders Stencil Display","Impact","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--ink);font:15px/1.45 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--sodium);outline-offset:2px}
+#app{max-width:460px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.screen{display:flex;flex-direction:column;flex:1;min-height:0}
+
+/* menu */
+#menu{gap:18px;padding-block:22px 18px;overflow:auto}
+.logo{font:800 64px/0.9 var(--f-display);letter-spacing:.04em;margin:0;color:var(--ink)}
+.logo span{color:var(--sodium)}
+.tag{margin:6px 0 0;color:var(--dim);max-width:34ch}
+.nights{display:grid;gap:10px}
+.ncard{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;text-align:left;
+  background:var(--desk);border:1px solid var(--line);border-radius:6px;padding:12px}
+.ncard .no{font:800 30px/1 var(--f-display);color:var(--sodium)}
+.ncard b{display:block;font-weight:600}
+.ncard small{color:var(--dim)}
+.ncard[disabled]{opacity:.45;cursor:default}
+.rate{font:600 11px/1 var(--f-mono);letter-spacing:.08em;padding:5px 7px;border-radius:3px;border:1px solid currentColor}
+.r-SILENT{color:var(--ok)} .r-QUIET{color:var(--ink)} .r-SEEN{color:var(--sodium)} .r-BURNED{color:var(--alarm)} .r-NONE{color:var(--dim)}
+.daily{background:var(--desk);border:1px dashed var(--line);border-radius:6px;padding:12px;display:grid;gap:8px}
+.daily h3,.sheet h3{margin:0;font:700 22px/1 var(--f-display);letter-spacing:.05em}
+.hist{display:flex;gap:6px;flex-wrap:wrap;font:12px var(--f-mono);color:var(--dim)}
+.mfoot{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.ghost{border:1px solid var(--line);border-radius:4px;padding:8px 12px;color:var(--dim)}
+.how{color:var(--dim);font-size:13px;margin:0}
+
+/* game */
+.ghead{display:grid;grid-template-columns:36px 1fr auto 36px;align-items:center;gap:8px;padding-block:8px 6px}
+.icon{width:36px;height:36px;border:1px solid var(--line);border-radius:4px;font:600 16px var(--f-mono);color:var(--dim)}
+.gtitle{display:flex;flex-direction:column;min-width:0}
+.gtitle b{font:700 20px/1 var(--f-display);letter-spacing:.06em}
+.gtitle span{font:12px var(--f-mono);color:var(--dim)}
+.alarm{display:flex;gap:4px} .alarm i{width:10px;height:10px;border-radius:50%;border:1px solid var(--alarm)} .alarm i.on{background:var(--alarm)}
+.boardwrap{position:relative}
+#board{display:block;width:100%;aspect-ratio:360/300;max-width:100%;border-radius:6px;background:var(--night);touch-action:manipulation}
+.caption{position:absolute;left:8px;right:8px;bottom:8px;font:12px/1.35 var(--f-mono);color:var(--ink);text-shadow:0 1px 3px #000;pointer-events:none}
+.toast{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:var(--raise);border:1px solid var(--line);border-radius:4px;padding:5px 9px;font:12px var(--f-mono);white-space:nowrap;pointer-events:none}
+.tl{position:relative;height:22px;margin-top:4px;font:10px var(--f-mono);color:var(--dim)}
+.tl .tk{position:absolute;top:0;width:1px;height:6px;background:var(--line)}
+.tl .lb{position:absolute;top:7px;transform:translateX(-50%)}
+.tl .cur{position:absolute;top:-2px;width:2px;height:10px;background:var(--sodium);transform:translateX(-1px)}
+.brief{font-size:13px;color:var(--dim);padding:6px 0 2px}
+.brief b{color:var(--ink);font-weight:600}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:6px}
+.tab{padding:9px 14px;font:600 13px var(--f-mono);letter-spacing:.06em;color:var(--dim);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-color:var(--sodium)}
+.panel{flex:1;min-height:0;overflow:auto;padding-block:10px;display:flex;flex-direction:column;gap:10px}
+.bug{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:var(--desk);border:1px solid var(--line);border-radius:6px;padding:10px}
+.play{width:44px;height:44px;border-radius:50%;border:1px solid var(--sodium);color:var(--sodium);font-size:16px}
+.bug.playing .play{background:var(--sodium);color:var(--night)}
+.bug b{display:block;font-weight:600;font-size:14px}
+.bug small{font:11px var(--f-mono);color:var(--dim)}
+.wave{display:flex;gap:2px;height:14px;align-items:flex-end;margin-top:4px}
+.wave i{width:3px;background:var(--line);height:4px;border-radius:1px}
+.bug.playing .wave i{background:var(--sodium);animation:wv .7s ease-in-out infinite alternate}
+.wave i:nth-child(2n){animation-delay:.2s}.wave i:nth-child(3n){animation-delay:.35s}
+@keyframes wv{to{height:14px}}
+.txtbtn{font:11px var(--f-mono);color:var(--dim);border:1px solid var(--line);border-radius:3px;padding:4px 6px}
+.trans{grid-column:1/-1;font:13px/1.5 var(--f-mono);color:var(--ink);border-top:1px dashed var(--line);padding-top:8px}
+.trans p{margin:0}.trans em{font-style:normal;color:var(--dim)}
+.note{font-size:12px;color:var(--dim)}
+.slip{display:grid;gap:8px}
+.oline{display:grid;grid-template-columns:22px 1fr 32px;gap:6px;align-items:center}
+.oline .n{font:12px var(--f-mono);color:var(--dim);text-align:right}
+.oline textarea{width:100%;box-sizing:border-box;background:var(--street);border:1px solid var(--line);border-radius:4px;color:var(--ink);font:16px/1.35 var(--f-mono);padding:9px 8px;resize:none;overflow:hidden;display:block}
+.oline textarea:focus{border-color:var(--sodium);outline:none}
+.oline .del{height:36px;color:var(--dim);font:16px var(--f-mono)}
+.draftlbl{font:11px var(--f-mono);color:var(--sodium);margin-left:28px}
+.tiles{display:flex;flex-wrap:wrap;gap:5px;margin-left:28px;min-height:8px}
+.tile{font:13px var(--f-mono);background:var(--raise);border:1px solid var(--line);border-radius:3px;padding:5px 7px;touch-action:none;user-select:none;-webkit-user-select:none}
+.tile.drag{border-color:var(--sodium);color:var(--sodium)}
+.keys{display:flex;gap:6px;margin-left:28px;flex-wrap:wrap}
+.keys button{min-width:36px;height:32px;border:1px solid var(--line);border-radius:4px;font:14px var(--f-mono)}
+.addo{justify-self:start;margin-left:28px;font:12px var(--f-mono);color:var(--dim);border:1px dashed var(--line);border-radius:4px;padding:7px 10px}
+.runbar{padding-block:8px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
+.run{flex:1;height:48px;border-radius:6px;background:var(--sodium);color:var(--night);font:800 22px/1 var(--f-display);letter-spacing:.12em}
+.run[disabled]{opacity:.4}
+.run.alt{background:none;border:1px solid var(--line);color:var(--ink);flex:0 0 auto;padding:0 16px;font-size:16px}
+.log{font:12px/1.5 var(--f-mono);display:grid;gap:3px}
+.log .t{color:var(--dim)} .log .bad{color:var(--alarm)} .log .good{color:var(--ok)} .log .sys{color:var(--sodium)}
+
+/* sheet */
+.sheet{position:fixed;inset:0;background:rgba(5,7,10,.72);display:flex;align-items:flex-end;justify-content:center;z-index:20;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+.sheet-in{width:100%;max-width:460px;max-height:88%;overflow:auto;background:var(--desk);border-top:1px solid var(--line);border-radius:10px 10px 0 0;
+  padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:grid;gap:14px}
+.stamp{justify-self:start;font:800 46px/1 var(--f-display);letter-spacing:.08em;border:3px solid currentColor;padding:4px 12px 2px;transform:rotate(-3deg);animation:st .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes st{from{transform:rotate(-3deg) scale(1.6);opacity:0}}
+.score{font:14px var(--f-mono);color:var(--dim)} .score b{color:var(--ink);font-size:18px}
+.chip{font:11px var(--f-mono);border:1px solid var(--line);border-radius:3px;padding:2px 6px;color:var(--sodium)}
+.what{margin:0;padding-left:18px;font-size:14px;display:grid;gap:4px}
+.err{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;gap:6px;background:var(--night)}
+.err header{display:flex;gap:8px;align-items:baseline}
+.rid{font:600 12px var(--f-mono);color:var(--night);background:var(--sodium);border-radius:3px;padding:1px 5px}
+.err p{margin:0;font-size:14px}
+.fix{display:flex;gap:8px;align-items:center;font:14px var(--f-mono);color:var(--ok)}
+.say{width:30px;height:30px;border-radius:50%;border:1px solid var(--ok);color:var(--ok);flex:0 0 auto;font-size:12px}
+.form{overflow-x:auto}
+.form table{border-collapse:collapse;font:12px var(--f-mono);min-width:100%}
+.form th{color:var(--dim);font-weight:400;text-align:left;padding:2px 6px;border-bottom:1px solid var(--line)}
+.form td{padding:4px 6px;color:var(--ink);white-space:nowrap}
+.form td.v{color:var(--sodium)}
+.tip{font-size:13px;color:var(--dim)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1 1 auto;min-height:44px;border-radius:6px;border:1px solid var(--line);padding:0 14px;font:600 14px var(--f-mono)}
+.btn.primary{background:var(--sodium);border-color:var(--sodium);color:var(--night)}
+details summary{cursor:pointer;color:var(--dim);font:12px var(--f-mono)}
+.voice-row{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.voice-row.on{border-color:var(--sodium)}
+.coach{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(428px,calc(100% - 32px));
+  background:var(--sodium);color:var(--night);border-radius:6px;padding:10px 12px;font-size:14px;font-weight:500;z-index:15;box-sizing:border-box;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+.coach button{text-decoration:underline;margin-left:6px;font-weight:600}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<div id="app">
+  <section id="menu" class="screen">
+    <div>
+      <h1 class="logo">AFLY<span>T</span></h1>
+      <p class="tag">Night operations in Danish. Listen to the bugs, write the orders, and watch your operatives do exactly what you wrote.</p>
+    </div>
+    <div id="nights" class="nights"></div>
+    <div id="daily" class="daily"></div>
+    <p class="how">Headphones on. Every night is different: the minutes, the words and the traps change each time you play.</p>
+    <div class="mfoot">
+      <button id="m-voice" class="ghost" type="button">Voice</button>
+      <button id="m-sound" class="ghost" type="button">Sound on</button>
+      <button id="m-form" class="ghost" type="button">Order form</button>
+    </div>
+  </section>
+
+  <section id="game" class="screen" hidden>
+    <header class="ghead">
+      <button id="g-back" class="icon" type="button" aria-label="Back to the menu">‹</button>
+      <div class="gtitle"><b id="g-name">NIGHT 1</b><span id="g-sub">Lygtegade · 22:00</span></div>
+      <div id="alarm" class="alarm" aria-label="Alarm"><i></i><i></i><i></i></div>
+      <button id="g-form" class="icon" type="button" aria-label="Open the order form">F</button>
+    </header>
+    <div class="boardwrap">
+      <canvas id="board" aria-label="The street"></canvas>
+      <div id="caption" class="caption"></div>
+      <div id="toast" class="toast" hidden></div>
+    </div>
+    <div id="tl" class="tl"></div>
+    <div id="brief" class="brief"></div>
+    <nav class="tabs" id="tabs">
+      <button id="tab-listen" class="tab on" type="button">LISTEN</button>
+      <button id="tab-orders" class="tab" type="button">ORDERS</button>
+    </nav>
+    <div id="p-listen" class="panel"></div>
+    <div id="p-orders" class="panel" hidden></div>
+    <div id="p-run" class="panel" hidden><div id="runlog" class="log"></div></div>
+    <div class="runbar">
+      <button id="b-run" class="run" type="button">RUN</button>
+      <button id="b-skip" class="run alt" type="button" hidden>Skip ▸▸</button>
+    </div>
+  </section>
+
+  <div id="sheet" class="sheet" hidden><div id="sheet-in" class="sheet-in"></div></div>
+  <div id="coach" class="coach" hidden></div>
+</div>
+
+<script>
+'use strict';
+/* ---------- small helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={
+  get(k,d){try{const v=localStorage.getItem('aflyt1:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem('aflyt1:'+k,JSON.stringify(v))}catch(e){}}
+};
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const NUMW=['nul','et','to','tre','fire','fem','seks','syv','otte','ni','ti'];
+const minW=n=>n===1?'et minut':NUMW[n]+' minutter';
+function clock(m){const tot=22*60+m;return Math.floor(tot/60)+':'+String(((tot%60)+60)%60).padStart(2,'0')}
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ---------- lexicon ---------- */
+const NOUNS={
+  bager:{g:'en',def:'bageren',bad:['bageret'],en:'bakery',show:'bager'},
+  posthus:{g:'et',def:'posthuset',bad:['posthusen','posthuse'],en:'post office',show:'posthus'},
+  cafe:{g:'en',def:'cafeen',bad:['cafeet','cafen'],en:'café',show:'café'},
+  kiosk:{g:'en',def:'kiosken',bad:['kiosket'],en:'kiosk',show:'kiosk'},
+  apotek:{g:'et',def:'apoteket',bad:['apoteken'],en:'pharmacy',show:'apotek'},
+  bil:{g:'en',def:'bilen',bad:['bilet'],en:'car (your van)',show:'bil'},
+  nøgle:{g:'en',def:'nøglen',bad:['nøglet'],en:'key',show:'nøgle'},
+  vagt:{g:'en',def:'vagten',bad:['vagtet'],en:'guard',show:'vagt'},
+  telefon:{g:'en',def:'telefonen',bad:['telefonet'],en:'phone',show:'telefon'}
+};
+const FORM={};
+for(const [s,n] of Object.entries(NOUNS)){FORM[s]={stem:s,form:'bare'};FORM[n.def]={stem:s,form:'def'};n.bad.forEach(b=>FORM[b]={stem:s,form:'bad'})}
+const STREETS={lygtegade:{name:'Lygtegade',prep:'i',type:'gade'},molevej:{name:'Molevej',prep:'på',type:'vej'}};
+const VERBS={går:['gå','pres'],gik:['gå','past'],gå:['gå','inf'],tager:['tage','pres'],tog:['tage','past'],tage:['tage','inf'],
+  henter:['hente','pres'],hentede:['hente','past'],hente:['hente','inf'],venter:['vente','pres'],ventede:['vente','past'],vente:['vente','inf'],
+  ringer:['ringe','pres'],ringede:['ringe','past'],ringe:['ringe','inf']};
+const PRES={gå:'går',tage:'tager',hente:'henter',vente:'venter',ringe:'ringer'};
+const NUMS={et:1,en:1,to:2,tre:3,fire:4,fem:5,seks:6,syv:7,otte:8,ni:9,ti:10};
+const RULES={
+  R2:{n:'for at + infinitive',tip:'After for at, the verb stays in the infinitive: for at hente, not for at henter.'},
+  R5:{n:'The verb comes second',tip:'If a time, a når-clause or Derefter stands first, the verb comes next and the person after it: Om to minutter går Ida …'},
+  R6:{n:'Orders use the present',tip:'An order happens now or later, so it uses the present: går, henter. Past forms (gik, hentede) only report what already happened.'},
+  R7:{n:'om · i · for … siden',tip:'om tre minutter = three minutes from now. i tre minutter = for three minutes. for tre minutter siden = three minutes ago.'},
+  R8:{n:'når or da',tip:'når = every time it happens, so it works as a trigger. da = one time, already over.'},
+  R11:{n:'i or på with a street',tip:'i with -gade and -stræde: i Lygtegade. på with -vej, -allé and -plads: på Molevej.'},
+  R12:{n:'en/et and the definite form',tip:'nøglen = the key we know about. en nøgle = any key. en-words take -en (kiosken), et-words take -et (posthuset).'}
+};
+const PRETTY={cafeen:'caféen',cafe:'café',ida:'Ida',bo:'Bo',lygtegade:'Lygtegade',molevej:'Molevej'};
+const pretty=w=>PRETTY[w]||w;
+function sentence(toks){let s=toks.map(pretty).join(' ').replace(/ ,/g,',');return cap(s)+'.'}
+
+function tokenize(s){
+  s=s.normalize('NFC').toLowerCase().replace(/é/g,'e');
+  s=s.replace(/(\d{1,2})[.:](\d{2})/g,'$1#$2');
+  s=s.replace(/\bklokken\b/g,' kl ').replace(/\bkl\b\.?/g,' kl ');
+  s=s.replace(/,/g,' , ').replace(/[.!?;"“”()]/g,' ');
+  return s.split(/\s+/).filter(Boolean).map(w=>w.replace('#',':'));
+}
+
+/* ---------- parser: text → order (with known errors executed literally) ---------- */
+function parseOrder(text,N,ctx){
+  const T=tokenize(text);let i=0;
+  const peek=(k=0)=>T[i+k],next=()=>T[i++];
+  const o={text:text.trim(),toks:T,trig:{type:'now'},acts:[],errs:[],notes:[],nop:null,op:null,unknown:false,edits:[]};
+  const err=(rule,code,msg)=>{if(!o.errs.some(e=>e.code===code))o.errs.push({rule,code,msg})};
+  const fail=()=>{o.unknown=true;o.acts=[];return o};
+  if(!T.length)return fail();
+
+  function parseNum(){const s=i;const w=next();let n=null;
+    if(/^\d+$/.test(w||''))n=+w;else if(w in NUMS)n=NUMS[w];
+    if(n==null||n<1||n>10){i=s;return null}
+    const u=next();if(u!=='minut'&&u!=='minutter'){i=s;return null}
+    return{n,w,u,wi:s}}
+  function parseTime(){const s=i;
+    if(peek()==='om'){i++;const n=parseNum();if(n)return{k:'om',...n,at:s};i=s;return null}
+    if(peek()==='kl'){i++;const m=/^(\d{1,2}):(\d{2})$/.exec(next()||'');if(m)return{k:'kl',h:+m[1],m:+m[2],at:s};i=s;return null}
+    if(peek()==='for'&&peek(1)!=='at'){i++;const n=parseNum();if(n&&peek()==='siden'){i++;return{k:'siden',...n,at:s}}i=s;return null}
+    if(peek()==='i'){i++;const n=parseNum();if(n)return{k:'i',...n,at:s};i=s;return null}
+    return null}
+  function addr(np){if((peek()==='i'||peek()==='på')&&STREETS[peek(1)]){np.addr={prep:peek(),pi:i,street:T[i+1]};i+=2}}
+  function parseNP(){const w=peek();if(!w)return null;
+    if(STREETS[w]){i++;return{street:w,wi:i-1}}
+    if(w==='en'||w==='et'){const f=FORM[peek(1)];if(f&&f.form==='bare'){const np={stem:f.stem,form:'indef',art:w,wi:i};i+=2;addr(np);return np}return null}
+    const f=FORM[w];if(!f)return null;const np={stem:f.stem,form:f.form,w,wi:i};i++;addr(np);return np}
+  function parseSubj(){const w=peek();const op=N.ops.find(x=>x.key===w);
+    if(op){i++;ctx[op.pro]=op;return op}
+    if(w==='hun'||w==='han'){const op2=ctx[w]||N.ops.find(x=>x.pro===w);if(op2){i++;return op2}}
+    return null}
+  function parseSub(){const s=i;const k=next();const sw=next();let who;
+    if(sw==='vagten')who='guard';else if(sw==='telefonen')who='phone';else{i=s;return null}
+    const vi=i;const vw=next();const vv=VERBS[vw];if(!vv){i=s;return null}
+    if(who==='guard'&&vv[0]!=='gå'||who==='phone'&&vv[0]!=='ringe'){i=s;return null}
+    if(peek()==='til'){i++;if(!parseNP()){i=s;return null}}
+    return{k,who,tense:vv[1],vw,vi,ki:s,lemma:vv[0]}}
+
+  let front=null,sub=null,time=null,subEnd=null,frontEnd=0;
+  if(T[0]==='når'||T[0]==='da'){sub=parseSub();if(!sub)return fail();front='sub';frontEnd=i;if(peek()===',')i++}
+  else{time=parseTime();
+    if(time){front='time';frontEnd=i;if(peek()===',')i++}
+    else if(['derefter','bagefter','så'].includes(peek())){front='seq';next();frontEnd=i}
+    else if(peek()==='nu'){front='nu';next();frontEnd=i}}
+  let subj,vtok,vi,si,v2bad=false;
+  if(front){
+    if(VERBS[peek()]){vi=i;vtok=next();si=i;subj=parseSubj();if(!subj)return fail()}
+    else{si=i;subj=parseSubj();if(!subj||!VERBS[peek()])return fail();vi=i;vtok=next();v2bad=true}
+  }else{si=i;subj=parseSubj();if(!subj||!VERBS[peek()])return fail();vi=i;vtok=next()}
+  const [lemma,tense]=VERBS[vtok];
+  if(lemma==='ringe')return fail();
+  const restStart=i;
+  let place=null,forAt=null,obj=null,loc=null,wait=null,objStart=-1,objEnd=-1;
+  if(lemma==='gå'){
+    if(['hen','over','tilbage'].includes(peek()))next();
+    if(peek()==='ind'){next();if(peek()==='i'||peek()==='på')next();else return fail()}
+    else if(peek()==='til')next();else return fail();
+    place=parseNP();if(!place)return fail();
+    for(let rep=0;rep<2;rep++){
+      if(peek()===','&&peek(1)==='for'&&peek(2)==='at')i++;
+      if(!forAt&&peek()==='for'&&peek(1)==='at'){i+=2;const fi=i;const vw=next();const vv=VERBS[vw];
+        if(!vv||!['hente','tage'].includes(vv[0]))return fail();
+        obj=parseNP();if(!obj)return fail();forAt={tense:vv[1],vw,fi,lemma:vv[0]}}
+      else if(!time&&(!front||front==='seq'||front==='nu')){const t2=parseTime();if(t2)time=t2}
+    }
+  }else if(lemma==='hente'||lemma==='tage'){
+    objStart=i;obj=parseNP();if(!obj)return fail();objEnd=i;
+    if(['i','på','hos','fra'].includes(peek())&&!STREETS[peek(1)]){next();loc=parseNP();if(!loc)return fail()}
+  }else if(lemma==='vente'){
+    if(peek()==='i'){next();wait=parseNum();if(!wait)return fail()}else return fail();
+  }
+  if(!time&&(!front||front==='seq'||front==='nu')){const t2=parseTime();if(t2)time=t2}
+  if(peek()===',')next();
+  if(peek()==='når'||peek()==='da'){subEnd=parseSub();if(!subEnd)return fail()}
+  if(i<T.length)return fail();
+
+  const op=subj;o.op=op.id;
+  const Name=op.name;
+  if(tense==='past'){err('R6','past',`"${vtok}" is past tense, so this reads as a report about something already done. Nothing happened.`);o.edits.push({i:vi,w:PRES[lemma]});o.nop='report'}
+  if(tense==='inf'){err('R6','inf',`"${vtok}" is the infinitive. An order needs the present: ${PRES[lemma]}. ${Name} waited for a real order.`);o.edits.push({i:vi,w:PRES[lemma]});o.nop='confused'}
+  const S=sub||subEnd;
+  if(S){
+    if(S.k==='da'){err('R8','da',`"da" means one time, already over. This reads as a report, so nothing happened. A trigger needs "når".`);o.edits.push({i:S.ki,w:'når'});if(S.tense!=='pres')o.edits.push({i:S.vi,w:PRES[S.lemma]});o.nop=o.nop||'report'}
+    else if(S.tense!=='pres'){err('R8','naarpast',`"${S.vw}" is past, so the trigger could never fire.`);o.edits.push({i:S.vi,w:PRES[S.lemma]});o.nop=o.nop||'never'}
+    else o.trig={type:'event',ev:S.who};
+  }
+  if(time){
+    if(time.n===1&&time.w==='en')o.notes.push('Small thing: minut is an et-word, so it is "et minut".');
+    if(time.n===1&&time.u==='minutter'||time.n>1&&time.u==='minut')o.notes.push(`Small thing: say "${minW(time.n)}".`);
+    if(time.k==='om')o.trig={type:'time',t:time.n};
+    else if(time.k==='kl'){const t=(time.h-22)*60+time.m;if(time.h!==22||t<0||t>10){o.notes.push(`${clock((time.h-22)*60+time.m)} is outside tonight's window (22:00 to 22:10).`);o.nop=o.nop||'never'}else o.trig={type:'time',t}}
+    else if(time.k==='siden'){err('R7','siden',`"for ${minW(time.n)} siden" is in the past. The order could never happen.`);o.edits.push({i:time.at,w:'om',del:time.at+3});o.nop=o.nop||'never'}
+    else if(time.k==='i'){err('R7','idur',`"i ${minW(time.n)}" means for ${time.n} minute${time.n>1?'s':''}, not in ${time.n}. ${Name} went at once.`);o.edits.push({i:time.at,w:'om'});o.trig={type:'now'}}
+  }
+  if(front==='seq')o.trig={type:'after'};
+  if(v2bad){
+    const what=T.slice(0,frontEnd).map(pretty).join(' ');
+    err('R5','v2',`The verb wasn't second, so "${what}" never attached. ${Name} went at once.`);
+    o.edits.push({swap:[si,vi]});
+    if(!o.nop)o.trig={type:'now'};
+  }
+  // places and things
+  const resolvePlace=np=>{
+    if(np.street){const pid=Object.keys(N.places).find(k=>N.places[k].node===np.street);
+      if(!pid){o.notes.push(`${STREETS[np.street].name} isn't on tonight's board.`);return null}return{pid}}
+    const nn=NOUNS[np.stem];
+    if(np.form==='bare'){err('R12','bare',`"${np.w}" alone doesn't say which one. ${Name} stood still. Use the definite form: ${pretty(nn.def)}.`);o.edits.push({i:np.wi,w:nn.def});return null}
+    if(np.form==='bad'){err('R12','gender',`"${pretty(np.w)}": ${nn.show} is an ${nn.g}-word, so the form is ${pretty(nn.def)}. ${Name} didn't understand.`);o.edits.push({i:np.wi,w:nn.def});return null}
+    if(np.form==='indef'&&np.art!==nn.g){err('R12','art',`${nn.show} is an ${nn.g}-word: ${nn.g} ${nn.show}.`);o.edits.push({i:np.wi,w:nn.g});return null}
+    let c=Object.keys(N.places).filter(k=>N.places[k].stem===np.stem);
+    if(!c.length){o.notes.push(`There is no ${nn.show} on tonight's board.`);return null}
+    if(np.addr){const st=STREETS[np.addr.street];
+      if(np.addr.prep!==st.prep){err('R11','prep',`${st.name} is a -${st.type}, so it takes "${st.prep}". The address bounced and ${Name} didn't move.`);o.edits.push({i:np.addr.pi,w:st.prep});return null}
+      c=c.filter(k=>N.places[k].street===np.addr.street);if(!c.length){o.notes.push(`There is no ${nn.show} ${np.addr.prep} ${st.name} tonight.`);return null}}
+    return c.length===1?{pid:c[0]}:{near:c}};
+  const resolveItem=(np,lr)=>{
+    if(np.street||np.stem!=='nøgle'){o.notes.push(`${Name} can only take nøglen tonight.`);return null}
+    const nn=NOUNS[np.stem];
+    if(np.form==='bare'){err('R12','bare',`"nøgle" alone doesn't say which key. ${Name} took nothing. The one you heard about is nøglen.`);o.edits.push({i:np.wi,w:'nøglen'});return null}
+    if(np.form==='bad'){err('R12','gender',`"${np.w}": nøgle is an en-word, so it is nøglen.`);o.edits.push({i:np.wi,w:'nøglen'});return null}
+    if(np.form==='indef'){if(np.art!==nn.g){err('R12','art','nøgle is an en-word: en nøgle.');o.edits.push({i:np.wi,w:'en'});return null}return{any:true}}
+    return lr?{at:lr}:{known:true}};
+  if(lemma==='gå'){const r=resolvePlace(place);if(r)o.acts.push({move:r});
+    if(forAt){if(forAt.tense!=='inf'){err('R2','forat',`After "for at" the verb must be the infinitive. ${Name} arrived and just stood there.`);o.edits.push({i:forAt.fi,w:forAt.lemma})}
+      else if(r){const it=resolveItem(obj,null);if(it)o.acts.push({take:it})}}}
+  else if(lemma==='hente'||lemma==='tage'){const lr=loc?resolvePlace(loc):null;if(!loc||lr){const it=resolveItem(obj,lr);if(it)o.acts.push({fetch:it})}}
+  else if(lemma==='vente')o.acts.push({wait:wait.n});
+  if(o.nop)o.acts=[];
+  // slots of the sentence as written (for the order form)
+  const fixedFront=front?T.slice(0,frontEnd):null;
+  o.slots={F:cap((fixedFront?fixedFront:[T[si]]).map(pretty).join(' ')),v:vtok,n:front?pretty(T[si]):'',
+    N:objStart>=0?T.slice(objStart,objEnd).map(pretty).join(' '):'',
+    A:(objStart>=0?T.slice(objEnd):T.slice(restStart)).filter(w=>w!==',').map(pretty).join(' ')};
+  o.ok=!o.errs.length&&!o.nop&&!o.unknown;
+  return o;
+}
+function corrected(o){
+  if(!o.edits.length)return null;
+  let T=o.toks.slice();
+  const dels=[];
+  for(const e of o.edits){if(e.swap){const[a,b]=e.swap;[T[a],T[b]]=[T[b],T[a]]}else{T[e.i]=e.w;if(e.del!==undefined)dels.push(e.del)}}
+  T=T.filter((w,k)=>!dels.includes(k));
+  return sentence(T);
+}
+
+/* ---------- nights ---------- */
+const LYGTE={
+  streets:{lygtegade:{rect:[0,122,360,46],label:[214,164],align:'center'}},
+  corner:null
+};
+function baseLygte(){return{
+  van:{stem:'bil',spot:[58,145],door:[58,145],safe:true,street:'lygtegade',van:true},
+  bager:{stem:'bager',rect:[14,18,104,100],spot:[66,62],door:[66,118],street:'lygtegade'},
+  hus1:{deco:true,rect:[128,34,88,84]},
+  posthus:{stem:'posthus',rect:[226,18,120,100],spot:[286,62],door:[286,118],street:'lygtegade'},
+  hus2:{deco:true,rect:[14,176,76,94]},
+  cafe:{stem:'cafe',rect:[100,176,106,96],spot:[153,228],door:[153,172],street:'lygtegade'},
+  kiosk:{stem:'kiosk',rect:[226,176,120,96],spot:[286,228],door:[286,172],street:'lygtegade'},
+  gade:{node:'lygtegade',spot:[196,145],door:[196,145],street:'lygtegade'}
+}}
+function night1(r,o){
+  let a,b;if(o.tutorial){a=2;b=6}else{a=2+Math.floor(r()*3);b=a+3+Math.floor(r()*2)}
+  return{id:1,name:'Lygtegade',par:2,...LYGTE,places:baseLygte(),
+    objective:'Bring <b>nøglen</b> (the key) back to the van without being seen.',
+    ops:[{id:'ida',key:'ida',name:'Ida',pro:'hun',start:'van'}],
+    guards:[{id:'g',start:'post',plan:[{t:a,to:'bager'},{t:b-1,to:'post'}]}],
+    gspots:{post:[286,136],bager:[66,136]},watch:{post:['posthus'],bager:['bager']},
+    items:[{id:'key',at:'posthus',real:true}],phoneAt:null,
+    bugs:[{title:'Bug 1 · Posthuset',time:'22:00',lines:[['a','Hvornår går du til bageren?'],['b',`Om ${minW(a)}. Jeg er træt af at stå her.`]]},
+          {title:'Bug 2 · Radio',time:'22:00',lines:[['b',`Jeg er tilbage om ${minW(b)}.`],['a','Og nøglen?'],['b','Den ligger i posthuset.']]}],
+    solution:[`Om ${minW(a)} går Ida til posthuset for at hente nøglen.`,'Derefter går hun tilbage til bilen.'],
+    draft:'Om tre minutter Ida går til posthuset.',facts:{a,b}};
+}
+function night2(r){
+  const rec=56+Math.floor(r()*3),a=2+Math.floor(r()*2),k=a+60-rec,d=3+Math.floor(r()*2);
+  return{id:2,name:'Molevej',par:2,
+    streets:{lygtegade:{rect:[0,122,232,46],label:[226,162],align:'right'},molevej:{rect:[232,0,48,300],label:[256,292],align:'center',vertical:true}},
+    corner:[256,145],
+    places:{van:{stem:'bil',spot:[58,145],door:[58,145],safe:true,street:'lygtegade',van:true},
+      kiosk1:{stem:'kiosk',rect:[14,18,104,100],spot:[66,62],door:[66,118],street:'lygtegade'},
+      hus1:{deco:true,rect:[128,34,96,84]},
+      hus2:{deco:true,rect:[14,176,76,96]},
+      cafe:{stem:'cafe',rect:[100,176,110,96],spot:[155,228],door:[155,172],street:'lygtegade'},
+      kiosk2:{stem:'kiosk',rect:[286,14,66,104],spot:[320,66],door:[282,66],street:'molevej'},
+      apotek:{stem:'apotek',rect:[286,182,66,104],spot:[320,234],door:[282,234],street:'molevej'},
+      gade:{node:'lygtegade',spot:[110,145],door:[110,145],street:'lygtegade'},
+      vej:{node:'molevej',spot:[256,220],door:[256,220],street:'molevej'}},
+    objective:'Bring <b>nøglen</b> back to the van. There are two kiosks tonight.',
+    ops:[{id:'bo',key:'bo',name:'Bo',pro:'han',start:'van'}],
+    guards:[{id:'g',start:'post',plan:[{t:a,to:'cafe'},{t:a+1+d,to:'post'}]}],
+    gspots:{post:[256,66],cafe:[155,158]},gstreet:{post:'molevej',cafe:'lygtegade'},watch:{post:['kiosk2'],cafe:['cafe']},
+    items:[{id:'key',at:'kiosk2',real:true},{id:'decoy',at:'gade',real:false,visible:true}],phoneAt:null,
+    bugs:[{title:'Bug 1 · Molevej',time:clock(rec-60),lines:[['a','Hvornår går du til caféen?'],['b',`Om ${minW(k)}.`]]},
+          {title:'Bug 2 · Radio',time:'22:00',lines:[['a','Hvor længe er du på caféen?'],['b',`I ${minW(d)}. Så kommer jeg tilbage.`]]},
+          {title:'Bug 3 · Kiosken i Lygtegade',time:'22:00',lines:[['a','Ligger nøglen i kiosken i Lygtegade?'],['b','Nej, den ligger i kiosken på Molevej.']]}],
+    solution:[`Om ${minW(a+1)} går Bo til kiosken på Molevej for at hente nøglen.`,'Derefter går han tilbage til bilen.'],
+    draft:'Bo går til kiosken i Molevej for at hente nøglen.',facts:{rec,a,k,d}};
+}
+function night3(r){
+  const p=2+Math.floor(r()*6);
+  return{id:3,name:'Lygtegade, igen',par:2,...LYGTE,places:baseLygte(),
+    objective:'Bring <b>nøglen</b> back to the van. The phone rings at a different minute every run.',
+    intro:'New order: <b>når</b>. A når-clause can stand first, and the verb still comes second.',
+    ops:[{id:'ida',key:'ida',name:'Ida',pro:'hun',start:'van'}],
+    guards:[{id:'g',start:'post',plan:[{t:p,to:'kiosk'},{t:p+1,to:'post'}]}],
+    gspots:{post:[153,156],kiosk:[286,156]},watch:{post:['cafe'],kiosk:['kiosk']},
+    items:[{id:'key',at:'cafe',real:true}],phoneAt:p,reroll:true,
+    bugs:[{title:'Bug 1 · Caféen',time:'22:00',lines:[['a','Hvornår går du til kiosken?'],['b','Når telefonen ringer.']]},
+          {title:'Bug 2 · Radio',time:'22:00',lines:[['a','Hvor længe er du væk?'],['b','I to minutter.']]},
+          {title:'Bug 3 · Radio',time:'22:00',lines:[['a','Hvor ligger nøglen?'],['b','Den ligger på caféen.']]}],
+    solution:['Når vagten går, går Ida til caféen for at hente nøglen.','Derefter går hun tilbage til bilen.'],
+    draft:'Da vagten gik, gik Ida til caféen.',facts:{p}};
+}
+const NIGHTS=[null,night1,night2,night3];
+const ERRDRAFT={
+  2:{R5:'Om tre minutter Bo går til kiosken på Molevej.',R12:'Bo henter en nøgle.',R2:'Om tre minutter går Bo til kiosken på Molevej for at henter nøglen.',R6:'Bo gik til kiosken på Molevej.'},
+  3:{R5:'Når vagten går, Ida går til caféen.',R12:'Når vagten går, henter Ida nøgle.',R2:'Når vagten går, går Ida til caféen for at henter nøglen.',R11:'Ida går til caféen på Lygtegade.'}
+};
+function makeNight(id,seed,opt={}){
+  const N=NIGHTS[id](rng(seed*7919+id*104729),opt);N.seed=seed;
+  const hist=store.get('errs',{});const top=Object.entries(hist).sort((x,y)=>y[1]-x[1])[0];
+  if(!opt.tutorial&&top&&ERRDRAFT[id]&&ERRDRAFT[id][top[0]])N.draft=ERRDRAFT[id][top[0]];
+  return N;
+}
+
+/* ---------- simulation: minute by minute, deterministic ---------- */
+function dist(N,a,b){const p=N.places[a].spot,q=N.places[b].spot;return Math.hypot(p[0]-q[0],p[1]-q[1])}
+function simulate(N,orders){
+  const TEND=10;
+  const ops={};N.ops.forEach(o=>ops[o.id]={id:o.id,at:o.start,carry:null,q:[],mv:null,wait:-1,visit:0});
+  const gs={};N.guards.forEach(g=>gs[g.id]={id:g.id,at:g.start,mv:null});
+  const items={};N.items.forEach(it=>items[it.id]={...it,by:null});
+  const st=orders.map(o=>({o,started:-1,done:-1,left:0}));
+  const frames=[],log=[];let alarm=0,end=null;const seen=new Set();
+  const finish=(s)=>{if(s.done<0&&s.left<=0)s.done=curT};
+  let curT=0;
+  function take(op,ref,s){
+    let it=null;
+    if(ref.any){let best=null;for(const x of Object.values(items)){if(x.by)continue;const dd=dist(N,op.at,x.at);if(!best||dd<best.d)best={x,d:dd}}it=best&&best.x}
+    else if(ref.at){it=Object.values(items).find(x=>!x.by&&x.at===resolve(op,ref.at))}
+    else it=items.key&&!items.key.by?items.key:null;
+    return it}
+  function resolve(op,r){if(!r)return null;if(r.pid)return r.pid;let best=null;for(const c of r.near){const dd=dist(N,op.at||op.mv.to,c);if(!best||dd<best.d)best={c,d:dd}}return best.c}
+  for(let t=0;t<=TEND;t++){
+    curT=t;
+    // A. arrivals
+    for(const op of Object.values(ops))if(op.mv&&op.mv.arr===t){op.at=op.mv.to;op.mv=null;op.visit++;log.push({t,k:'arrive',op:op.id,at:op.at});
+      if(op.cur&&op.cur.kind==='move'){op.cur.s.left--;finish(op.cur.s);op.cur=null}}
+    for(const g of Object.values(gs))if(g.mv&&g.mv.arr===t){g.at=g.mv.to;g.mv=null}
+    for(const op of Object.values(ops))if(op.wait>=0&&op.wait<=t&&op.cur&&op.cur.kind==='wait'){op.wait=-1;op.cur.s.left--;finish(op.cur.s);op.cur=null}
+    // B. events
+    const evs=[];
+    if(N.phoneAt===t){evs.push('phone');log.push({t,k:'phone'})}
+    // C. guard departures
+    for(const g of N.guards){const G=gs[g.id];for(const p of g.plan)if(p.t===t&&G.at!==p.to){if(G.at===g.start)evs.push('guard');G.mv={from:G.at,to:p.to,arr:t+1};G.at=null;log.push({t,k:'guard',to:p.to})}}
+    // D. triggers, E. operatives act (repeated so "Derefter" can follow an instant action in the same minute)
+    const fire=onlyAfter=>{let n=0;st.forEach((s,idx)=>{if(s.started>=0||s.o.nop||s.o.unknown)return;const tr=s.o.trig;let go=false;
+      if(onlyAfter&&tr.type!=='after')return;
+      if(tr.type==='now')go=t===0;
+      else if(tr.type==='time')go=t===tr.t;
+      else if(tr.type==='after'){const pv=st[idx-1];go=pv?(pv.done>=0&&pv.done<=t):t===0}
+      else if(tr.type==='event')go=evs.includes(tr.ev);
+      if(go){n++;s.started=t;s.left=s.o.acts.length;const op=ops[s.o.op];s.o.acts.forEach(a=>op.q.push({a,s}));log.push({t,k:'fire',idx,op:s.o.op});if(!s.left)s.done=t}});return n};
+    // F. seen: anyone standing where a present guard looks, before they can act this minute
+    for(const op of Object.values(ops)){if(!op.at||N.places[op.at].safe)continue;
+      for(const g of Object.values(gs)){if(g.mv||!g.at)continue;const w=N.watch[g.at]||[];
+        if(w.includes(op.at)){const key=op.id+'@'+op.at+'#'+op.visit;if(!seen.has(key)){seen.add(key);alarm++;log.push({t,k:'seen',op:op.id,at:op.at})}}}}
+    fire(false);act();
+    for(let rep=0;rep<4&&fire(true);rep++)act();
+    // G. carried items move with their carrier
+    for(const it of Object.values(items))if(it.by){const op=ops[it.by];it.at=op.at||op.mv&&op.mv.from}
+    // H. snapshot
+    frames[t]={t,ops:JSON.parse(JSON.stringify(ops)),gs:JSON.parse(JSON.stringify(gs)),items:JSON.parse(JSON.stringify(items)),alarm};
+    // I. end checks
+    for(const op of Object.values(ops))if(op.at==='van'&&op.carry&&items[op.carry].real){end={t,win:true};break}
+    if(!end&&alarm>=3)end={t,win:false,why:'lockdown'};
+    if(end)break;
+  }
+  if(!end){const wrong=Object.values(ops).find(op=>op.carry&&!items[op.carry].real);
+    end={t:TEND,win:false,why:wrong?'wrongkey':'time'}}
+  return{frames,log,alarm,end};
+  function act(){const t=curT;
+    for(const op of Object.values(ops)){
+      let guard=0;
+      while(!op.mv&&op.wait<0&&op.q.length&&guard++<8){
+        const{a,s}=op.q.shift();
+        if(a.move){const to=resolve(op,a.move);if(to===op.at){s.left--;finish(s);continue}
+          op.mv={from:op.at,to,dep:t,arr:t+1};op.at=null;op.cur={kind:'move',s};log.push({t,k:'move',op:op.id,to});break}
+        if(a.fetch||a.take){const ref=a.fetch||a.take;const it=take(op,ref,s);
+          if(!it){log.push({t,k:'nokey',op:op.id,at:op.at});s.left--;finish(s);continue}
+          if(it.at===op.at){it.by=op.id;op.carry=it.id;log.push({t,k:'take',op:op.id,item:it.id,at:op.at});s.left--;finish(s);continue}
+          if(a.take){log.push({t,k:'nokey',op:op.id,at:op.at});s.left--;finish(s);continue}
+          op.q.unshift({a:{take:{at:{pid:it.at}},_it:it.id},s});s.left++;
+          op.mv={from:op.at,to:it.at,dep:t,arr:t+1};op.at=null;op.cur={kind:'move',s};log.push({t,k:'move',op:op.id,to:it.at});break}
+        if(a.wait){op.wait=t+a.wait;op.cur={kind:'wait',s};break}
+      }
+    }
+  }
+}
+
+/* ---------- audio ---------- */
+let AC=null,master=null,muted=store.get('mute',false);
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=muted?0:.7;master.connect(AC.destination)}catch(e){AC=null}}
+  if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(f,dur,type='sine',vol=.2,when=0,to=null){const a=ac();if(!a)return;const t0=a.currentTime+when;const o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t0);if(to)o.frequency.exponentialRampToValueAtTime(to,t0+dur);
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.012);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);
+  o.connect(g);g.connect(master);o.start(t0);o.stop(t0+dur+.05)}
+let NB=null;
+function noiseBuf(){const a=ac();if(!a)return null;if(!NB){NB=a.createBuffer(1,a.sampleRate*2,a.sampleRate);const d=NB.getChannelData(0);for(let k=0;k<d.length;k++)d[k]=Math.random()*2-1}return NB}
+function noise(dur,vol=.12,fc=1800,q=.7,when=0){const a=ac();if(!a)return null;const s=a.createBufferSource();s.buffer=noiseBuf();s.loop=true;
+  const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=fc;f.Q.value=q;const g=a.createGain();const t0=a.currentTime+when;
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.03);if(dur>0)g.gain.linearRampToValueAtTime(0,t0+dur);
+  s.connect(f);f.connect(g);g.connect(master);s.start(t0);if(dur>0)s.stop(t0+dur+.05);return{s,g}}
+const SFX={
+  tick(){tone(2200,.025,'square',.025)},
+  stamp(){tone(95,.3,'sine',.55);noise(.09,.25,700,.6)},
+  chord(){[220,277.18,329.63,440].forEach((f,k)=>tone(f,1.8,'sine',.1,k*.07))},
+  seen(){tone(73,.8,'sawtooth',.22,0,48);tone(880,.1,'square',.07);tone(880,.1,'square',.07,.17)},
+  take(){tone(1318,.16,'triangle',.11);tone(1760,.22,'triangle',.09,.08)},
+  ring(){for(let k=0;k<3;k++){tone(1400,.07,'square',.045,k*.22);tone(1720,.07,'square',.045,k*.22+.08)}},
+  fail(){tone(196,1.1,'sawtooth',.13,0,55);noise(.4,.06,400,.5)},
+  blip(){tone(660,.05,'square',.035)},
+  hvad(){noise(.25,.1,1500,.8);tone(300,.12,'square',.04,.05,240)},
+  crackle(){noise(.22,.08,2600,.6)}
+};
+let bed=null;
+function bedOn(){if(bed)return;bed=noise(0,.022,2200,.5)}
+function bedOff(){if(!bed)return;try{const a=ac();bed.g.gain.linearRampToValueAtTime(0,a.currentTime+.2);bed.s.stop(a.currentTime+.3)}catch(e){}bed=null}
+
+/* ---------- voice ---------- */
+let VOICES=[];
+function loadVoices(){try{VOICES=(speechSynthesis.getVoices()||[]).filter(v=>/^da([-_]|$)/i.test(v.lang))}catch(e){VOICES=[]}}
+if('speechSynthesis' in window){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices}catch(e){}}
+const hasVoice=()=>VOICES.length>0;
+function voiceFor(alt){const name=store.get('voice',null);let v=VOICES.find(x=>x.name===name)||VOICES[0];
+  if(alt&&VOICES.length>1){const o=VOICES.find(x=>x!==v);if(o)return o}return v}
+function speak(text,prof={}){return new Promise(res=>{
+  if(!('speechSynthesis' in window)||!hasVoice()){setTimeout(res,350);return}
+  let done=false;const fin=()=>{if(!done){done=true;res()}};
+  try{const u=new SpeechSynthesisUtterance(text);u.lang='da-DK';const v=voiceFor(prof.alt);if(v)u.voice=v;
+    u.rate=prof.rate||1;u.pitch=prof.pitch||1;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u)}catch(e){fin()}
+  setTimeout(fin,1400+text.length*95)})}
+function hush(){try{speechSynthesis.cancel()}catch(e){}}
+
+/* ---------- board drawing ---------- */
+const cv=$('#board'),cx=cv.getContext('2d');const BW=360,BH=300;
+const css=getComputedStyle(document.documentElement);const C=k=>css.getPropertyValue('--'+k).trim();
+const COL={night:C('night'),street:C('street'),line:C('line'),ink:C('ink'),dim:C('dim'),sodium:C('sodium'),alarm:C('alarm'),ok:C('ok'),guard:C('guard'),desk:C('desk')};
+function fit(){const w=cv.clientWidth||340;const dpr=Math.min(3,window.devicePixelRatio||1);cv.width=Math.round(w*dpr);cv.height=Math.round(w*BH/BW*dpr);cx.setTransform(cv.width/BW,0,0,cv.height/BH,0,0)}
+function hash(n){n=(n^61)^(n>>>16);n=n+(n<<3);n=n^(n>>>4);n=Math.imul(n,0x27d4eb2d);return(n^(n>>>15))>>>0}
+function pathPts(N,from,to,isG){
+  const P=k=>isG?(N.gspots[k]||N.places[k].spot):N.places[k].spot;
+  const D=k=>N.places[k].door;
+  const S=k=>(isG&&N.gstreet&&N.gstreet[k])||(N.places[k]?N.places[k].street:'lygtegade');
+  const W=k=>{const s=N.streets[S(k)];const d=isG?P(k):D(k);const r=s.rect;return s.vertical?[r[0]+r[2]/2,d[1]]:[d[0],r[1]+r[3]/2]};
+  const pts=[P(from)];if(!isG)pts.push(D(from));pts.push(W(from));
+  if(N.corner&&S(from)!==S(to))pts.push(N.corner);
+  pts.push(W(to));if(!isG)pts.push(D(to));pts.push(P(to));return pts}
+function along(pts,f){let L=0;const seg=[];for(let k=1;k<pts.length;k++){const d=Math.hypot(pts[k][0]-pts[k-1][0],pts[k][1]-pts[k-1][1]);seg.push(d);L+=d}
+  let x=f*L;for(let k=1;k<pts.length;k++){if(x<=seg[k-1]||k===pts.length-1){const u=seg[k-1]?Math.min(1,x/seg[k-1]):1;return[pts[k-1][0]+(pts[k][0]-pts[k-1][0])*u,pts[k-1][1]+(pts[k][1]-pts[k-1][1])*u]}x-=seg[k-1]}return pts[pts.length-1]}
+function ease(u){return u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2}
+function posOf(N,fr,kind,id,u){const o=kind==='op'?fr.ops[id]:fr.gs[id];const isG=kind==='g';
+  if(o.mv)return along(pathPts(N,o.mv.from,o.mv.to,isG),ease(u));
+  const at=o.at;return isG?(N.gspots[at]||N.places[at].spot):N.places[at].spot}
+function draw(N,view){
+  const V=view||{};cx.clearRect(0,0,BW,BH);cx.fillStyle=COL.night;cx.fillRect(0,0,BW,BH);
+  // streets
+  for(const [sid,s] of Object.entries(N.streets)){const[x,y,w,h]=s.rect;cx.fillStyle=COL.street;cx.fillRect(x,y,w,h);
+    cx.strokeStyle=COL.line;cx.setLineDash([6,8]);cx.beginPath();if(s.vertical){cx.moveTo(x+w/2,0);cx.lineTo(x+w/2,BH)}else{cx.moveTo(x,y+h/2);cx.lineTo(x+w,y+h/2)}cx.stroke();cx.setLineDash([])}
+  for(const [sid,s] of Object.entries(N.streets)){cx.font='600 9px "IBM Plex Mono",monospace';cx.fillStyle=COL.dim;cx.textAlign=s.align||'left';cx.textBaseline='alphabetic';
+    const nm=STREETS[sid].name.toUpperCase();if(s.vertical){cx.save();cx.translate(s.rect[0]+s.rect[2]/2+3,s.rect[3]-10);cx.rotate(-Math.PI/2);cx.textAlign='left';cx.fillText(nm,0,0);cx.restore()}else cx.fillText(nm,s.label[0],s.label[1])}
+  // lamps
+  const lamps=N.id===2?[[60,124],[180,166],[234,40],[278,250]]:[[90,124],[190,166],[300,124],[40,166]];
+  for(const[lx,ly]of lamps){const g=cx.createRadialGradient(lx,ly,0,lx,ly,46);g.addColorStop(0,'rgba(227,166,74,.22)');g.addColorStop(1,'rgba(227,166,74,0)');cx.fillStyle=g;cx.fillRect(lx-46,ly-46,92,92);cx.fillStyle=COL.sodium;cx.fillRect(lx-1.5,ly-1.5,3,3)}
+  // buildings
+  for(const [pid,p] of Object.entries(N.places)){if(!p.rect)continue;const[x,y,w,h]=p.rect;
+    cx.fillStyle=COL.desk;cx.fillRect(x,y,w,h);cx.strokeStyle=p.deco?COL.line:COL.ink;cx.lineWidth=p.deco?1:1.4;cx.strokeRect(x+.5,y+.5,w-1,h-1);
+    const hs=hash((x*31+y*17)|0);let n=0;
+    for(let wy=y+10;wy<y+h-28;wy+=18)for(let wx=x+10;wx<x+w-12;wx+=16){const lit=(hash(hs+n++)%5)===0;cx.fillStyle=lit?'rgba(227,166,74,.55)':'rgba(142,151,164,.12)';cx.fillRect(wx,wy,8,10)}
+    if(p.deco)continue;
+    const d=p.door;const nn=NOUNS[p.stem];
+    // door
+    cx.fillStyle=COL.night;cx.strokeStyle=COL.ink;cx.lineWidth=1;
+    if(d[0]<x||d[0]>x+w){cx.fillRect(x-1,d[1]-8,3,16)}else{const dy=d[1]<=y+1?y:y+h-3;cx.fillRect(d[0]-7,dy,14,3)}
+    // sign: round plate = en-word, square plate = et-word
+    const sy=d[1]<=y+1?y+16:(d[0]<x||d[0]>x+w?y+h-12:y+h-12);const label=(nn.show).toUpperCase();
+    cx.font='600 9px "IBM Plex Mono",monospace';const tw=cx.measureText(label).width;const sx=x+w/2-(tw+12)/2;
+    cx.strokeStyle=COL.sodium;cx.fillStyle=COL.sodium;cx.lineWidth=1.2;
+    if(nn.g==='en'){cx.beginPath();cx.arc(sx+3.5,sy-3,3.5,0,Math.PI*2);cx.stroke()}else{cx.strokeRect(sx,sy-6.5,7,7)}
+    cx.fillStyle=COL.ink;cx.textAlign='left';cx.fillText(label,sx+11,sy);
+  }
+  // van
+  const vp=N.places.van.spot;cx.strokeStyle=COL.ink;cx.lineWidth=1.3;cx.strokeRect(vp[0]-50,vp[1]-10,30,18);cx.strokeRect(vp[0]-20,vp[1]-5,7,13);
+  cx.beginPath();cx.moveTo(vp[0]-39,vp[1]+9);cx.arc(vp[0]-42,vp[1]+9,3,0,7);cx.moveTo(vp[0]-21,vp[1]+9);cx.arc(vp[0]-24,vp[1]+9,3,0,7);cx.stroke();
+  cx.font='600 7px "IBM Plex Mono",monospace';cx.fillStyle=COL.dim;cx.textAlign='center';cx.fillText('BIL',vp[0]-35,vp[1]+2);
+  const fr=V.frame,u=V.u||0;
+  // phone
+  if(N.phoneAt!=null){const pp=N.places.cafe.spot;const ringing=V.ring;cx.strokeStyle=ringing?COL.sodium:COL.dim;cx.lineWidth=1.2;cx.strokeRect(pp[0]+22,pp[1]-8,8,12);
+    if(ringing){cx.beginPath();cx.arc(pp[0]+26,pp[1]-2,10+4*Math.sin(Date.now()/60),-.6,.6);cx.stroke()}}
+  // items
+  const its=fr?fr.items:Object.fromEntries(N.items.map(i=>[i.id,{...i,by:null}]));
+  for(const it of Object.values(its)){if(it.by)continue;if(!it.visible&&!V.reveal)continue;const p=N.places[it.at].spot;keyGlyph(p[0]+(it.visible?0:16),p[1]+(it.visible?6:10),it.real?COL.sodium:COL.dim)}
+  // guards + cones
+  for(const g of N.guards){let p,moving=false,at;if(fr){p=posOf(N,fr,'g',g.id,u);moving=!!fr.gs[g.id].mv;at=fr.gs[g.id].at}else{at=g.start;p=N.gspots[at]}
+    if(!moving&&at){const w=(N.watch[at]||[])[0];if(w){const t=N.places[w].door;const ang=Math.atan2(t[1]-p[1],t[0]-p[0]);
+      cx.fillStyle='rgba(227,166,74,.15)';cx.strokeStyle='rgba(227,166,74,.4)';cx.lineWidth=1;cx.beginPath();cx.moveTo(p[0],p[1]);cx.arc(p[0],p[1],62,ang-.5,ang+.5);cx.closePath();cx.fill();cx.stroke()}}
+    figure(p[0],p[1],COL.guard,true,'VAGT')}
+  // operatives
+  for(const o of N.ops){const p=fr?posOf(N,fr,'op',o.id,u):N.places[o.start].spot;const inside=fr&&fr.ops[o.id].at&&N.places[fr.ops[o.id].at].rect;
+    cx.globalAlpha=inside?.7:1;figure(p[0],p[1],COL.ink,false,o.name.toUpperCase());cx.globalAlpha=1;
+    if(fr&&fr.ops[o.id].carry)keyGlyph(p[0]+9,p[1]-12,fr.items[fr.ops[o.id].carry].real?COL.sodium:COL.dim)}
+  if(V.flash){cx.strokeStyle=COL.alarm;cx.lineWidth=6;cx.globalAlpha=V.flash;cx.strokeRect(3,3,BW-6,BH-6);cx.globalAlpha=1}
+  if(V.seenAt){const p=V.seenAt;cx.font='800 18px "Big Shoulders Stencil Display",Impact,sans-serif';cx.fillStyle=COL.alarm;cx.textAlign='center';cx.fillText('SEEN',p[0],p[1]-20)}
+}
+function figure(x,y,col,guard,label){cx.fillStyle=col;cx.beginPath();cx.arc(x,y-9,4.2,0,7);cx.fill();cx.beginPath();cx.moveTo(x-6,y+6);cx.lineTo(x+6,y+6);cx.lineTo(x,y-4);cx.closePath();cx.fill();
+  if(guard){cx.fillRect(x-5.5,y-14.5,11,2.4)}cx.font='600 7.5px "IBM Plex Mono",monospace';cx.textAlign='center';cx.fillStyle=col;cx.fillText(label,x,y+15)}
+function keyGlyph(x,y,col){cx.strokeStyle=col;cx.lineWidth=1.6;cx.beginPath();cx.arc(x-3,y,2.6,0,7);cx.moveTo(x-.4,y);cx.lineTo(x+6,y);cx.moveTo(x+4,y);cx.lineTo(x+4,y+2.6);cx.stroke()}
+function hitTest(N,x,y){
+  for(const o of N.ops){const p=N.places[o.start].spot;if(Math.hypot(x-p[0],y-p[1]+4)<14)return{w:o.name,g:'operative'}}
+  for(const g of N.guards){const p=N.gspots[g.start];if(Math.hypot(x-p[0],y-p[1]+4)<14)return{w:'vagt',g:NOUNS.vagt.en,stem:'vagt'}}
+  for(const it of N.items)if(it.visible){const p=N.places[it.at].spot;if(Math.hypot(x-p[0],y-p[1]-6)<12)return{w:'nøgle',g:'a key',stem:'nøgle'}}
+  const vp=N.places.van.spot;if(Math.abs(x-(vp[0]-30))<24&&Math.abs(y-vp[1])<14)return{w:'bil',g:NOUNS.bil.en,stem:'bil'};
+  for(const [p] of Object.entries(N.places)){const P=N.places[p];if(!P.rect||P.deco)continue;const[a,b,w,h]=P.rect;if(x>=a&&x<=a+w&&y>=b&&y<=b+h)return{w:NOUNS[P.stem].show,g:NOUNS[P.stem].en,stem:P.stem}}
+  for(const [sid,s] of Object.entries(N.streets)){const[a,b,w,h]=s.rect;if(x>=a&&x<=a+w&&y>=b&&y<=b+h)return{w:STREETS[sid].name,g:'street'}}
+  return null}
+
+/* ---------- game state & UI ---------- */
+const G={N:null,id:1,seed:1,mode:'plan',lines:[],active:0,blind:true,played:{},runs:0,daily:null,tut:false};
+const ORDER=['BURNED','SEEN','QUIET','SILENT'];
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function dayHash(k){let h=2166136261;for(const c of k){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+
+function renderMenu(){
+  const unl=store.get('unl',1),best=store.get('best',{});
+  const names={1:'Lygtegade',2:'Molevej',3:'Lygtegade, igen'};const what={1:'Verb second · om',2:'i/på with streets · nøglen or en nøgle · clock maths',3:'når · da'};
+  $('#nights').innerHTML=[1,2,3].map(n=>{const b=best[n];const lock=n>unl;
+    return `<button class="ncard" type="button" data-n="${n}" ${lock?'disabled':''}><span class="no">${n}</span><span><b>${names[n]}</b><small>${lock?'Locked · finish night '+(n-1):what[n]}</small></span>${b?`<span class="rate r-${b.r}">${b.r}</span>`:`<span class="rate r-NONE">${lock?'—':'NEW'}</span>`}</button>`}).join('');
+  const dk=todayKey(),dres=store.get('daily',{}),today=dres[dk];
+  const counts={SILENT:0,QUIET:0,SEEN:0,BURNED:0};Object.values(dres).forEach(r=>counts[r.r]=(counts[r.r]||0)+1);
+  $('#daily').innerHTML=`<h3>TONIGHT'S SEED</h3><span class="note">One counted attempt a day. Same night for the whole day, new numbers tomorrow.</span>
+    ${today?`<span>Tonight: <span class="rate r-${today.r}">${today.r}</span> · ${today.s} points</span>`:''}
+    <div class="hist">${ORDER.slice().reverse().map(r=>`<span class="r-${r}">${r} ${counts[r]}</span>`).join(' · ')}</div>
+    <button class="btn ${today?'':'primary'}" type="button" id="m-daily">${today?'Replay (not counted)':'Play tonight\'s seed'}</button>`;
+  $('#m-sound').textContent=muted?'Sound off':'Sound on';
+  document.querySelectorAll('.ncard').forEach(b=>b.onclick=()=>{ac();startNight(+b.dataset.n)});
+  $('#m-daily').onclick=()=>{ac();const unlN=store.get('unl',1);const h=dayHash(dk);startNight(1+(h%unlN),{daily:true,seed:h%100000})};
+}
+function show(id){['menu','game'].forEach(s=>$('#'+s).hidden=s!==id)}
+function startNight(id,opt={}){
+  hush();bedOff();
+  const tut=id===1&&!store.get('tutDone',false)&&!opt.daily;
+  const seed=opt.seed!=null?opt.seed:(opt.keepSeed?G.seed:Math.floor(Math.random()*1e6));
+  const N=makeNight(id,seed,{tutorial:tut});
+  const keepLines=opt.keepLines?G.lines.slice():null;
+  Object.assign(G,{N,id,seed,mode:'plan',blind:hasVoice(),played:{},tut,daily:opt.daily?{k:todayKey(),counted:!store.get('daily',{})[todayKey()]}:null});
+  G.lines=keepLines||[{text:N.draft,draft:true},{text:''}];G.active=G.lines.length-1;
+  if(!opt.keepSeed)G.runs=0;
+  show('game');fit();
+  $('#g-name').textContent=(opt.daily?'TONIGHT · ':'')+'NIGHT '+id;
+  $('#g-sub').textContent=N.name+' · 22:00';
+  setAlarm(0);renderTL(null);
+  $('#brief').innerHTML=`${N.intro?N.intro+'<br>':''}${N.objective} Par: ${N.par} orders.`;
+  $('#caption').textContent='';
+  tab('listen');renderListen();renderOrders();
+  $('#b-run').hidden=false;$('#b-run').disabled=false;$('#b-run').textContent='RUN';$('#b-skip').hidden=true;
+  $('#tabs').hidden=false;$('#p-run').hidden=true;
+  draw(N);
+  if(G.tut)coach('Headphones on. Tap ▶ on Bug 1 and listen. There is no transcript, just like a real wiretap.');
+  else coach(null);
+}
+function setAlarm(n){document.querySelectorAll('#alarm i').forEach((e,k)=>e.classList.toggle('on',k<n))}
+function renderTL(t){const el=$('#tl');let h='';for(let k=0;k<=10;k++){const x=k*10;h+=`<span class="tk" style="left:${x}%"></span>`;if(k%5===0)h+=`<span class="lb" style="left:${Math.min(96,Math.max(4,x))}%">${clock(k)}</span>`}
+  if(t!=null)h+=`<span class="cur" style="left:${Math.min(100,t*10)}%"></span>`;el.innerHTML=h}
+function tab(w){['listen','orders'].forEach(k=>{$('#tab-'+k).classList.toggle('on',k===w);$('#p-'+k).hidden=k!==w});if(w==='orders')document.querySelectorAll('.oline textarea').forEach(grow)}
+$('#tab-listen').onclick=()=>tab('listen');
+$('#tab-orders').onclick=()=>{tab('orders');if(G.tut&&G.played[0])coach('Your predecessor left a draft order. Press RUN and watch exactly what Ida does with it.')};
+
+function renderListen(){const N=G.N;const noV=!hasVoice();
+  $('#p-listen').innerHTML=(noV?`<p class="note">No Danish voice was found on this device, so the transcripts are open. Open Voice in the menu to fix it.</p>`:'')+
+  N.bugs.map((b,k)=>`<div class="bug" id="bug${k}"><button class="play" type="button" data-k="${k}" aria-label="Play ${esc(b.title)}">▶</button>
+    <div><b>${esc(b.title)}</b><small>recorded ${b.time}${G.played[k]?' · heard':''}</small><div class="wave">${'<i></i>'.repeat(14)}</div></div>
+    ${noV?'<span></span>':`<button class="txtbtn" type="button" data-t="${k}">Text</button>`}
+    <div class="trans" id="tr${k}" ${noV?'':'hidden'}>${b.lines.map(l=>`<p><em>${l[0]==='a'?'A':'B'}:</em> ${esc(l[1])}</p>`).join('')}</div></div>`).join('')+
+  `<p class="note">Tap anything on the street to hear its Danish name and drop it into your order.</p>`;
+  document.querySelectorAll('.play').forEach(b=>b.onclick=()=>playBug(+b.dataset.k));
+  document.querySelectorAll('.txtbtn').forEach(b=>b.onclick=()=>{const t=$('#tr'+b.dataset.t);t.hidden=!t.hidden;if(!t.hidden)G.blind=false});
+}
+let playing=-1;
+async function playBug(k){ac();if(playing>=0){hush();bedOff();const was=playing;playing=-1;document.querySelectorAll('.bug').forEach(e=>e.classList.remove('playing'));if(was===k)return}
+  playing=k;const el=$('#bug'+k);el.classList.add('playing');SFX.crackle();bedOn();await new Promise(r=>setTimeout(r,350));
+  for(const [who,line] of G.N.bugs[k].lines){if(playing!==k)break;SFX.blip();await speak(line,who==='a'?{pitch:.82,rate:.98}:{pitch:1.12,rate:1.02,alt:true});await new Promise(r=>setTimeout(r,180))}
+  if(playing===k){bedOff();SFX.crackle();playing=-1;el.classList.remove('playing');G.played[k]=true;const sm=el.querySelector('small');if(sm&&!/heard/.test(sm.textContent))sm.textContent+=' · heard';
+    if(G.tut){if(k===0&&!G.played[1])coach('Now Bug 2.');else if(G.played[0]&&G.played[1])coach('Open ORDERS.')}}}
+
+function renderOrders(){const N=G.N;
+  $('#p-orders').innerHTML=`<div class="slip">${G.lines.map((l,k)=>`
+    ${l.draft?`<div class="draftlbl">Predecessor's draft. Run it, fix it or delete it.</div>`:''}
+    <div class="oline" id="row-${k}"><span class="n">${k+1}</span><textarea id="ord-${k}" data-k="${k}" rows="1" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="done" placeholder="${k===0?G.N.ops[0].name+' går til …':'Derefter …'}">${esc(l.text)}</textarea><button class="del" type="button" data-d="${k}" aria-label="Delete order ${k+1}">×</button></div>`).join('')}
+    <div id="aid"><div class="tiles" id="tiles"></div><div class="keys"><button type="button" data-c="æ">æ</button><button type="button" data-c="ø">ø</button><button type="button" data-c="å">å</button><button type="button" data-c="é">é</button></div></div>
+    ${G.lines.length<6?`<button class="addo" type="button" id="addo">+ Add order</button>`:''}</div>
+    <p class="note">The radio understands orders like: ${G.N.ops[0].name} går til … · ${G.N.ops[0].name} henter … · Derefter … · Om … minutter … · ${G.N.ops[0].name} venter i … minutter.</p>`;
+  document.querySelectorAll('.oline textarea').forEach(inp=>{grow(inp);
+    inp.oninput=()=>{inp.value=inp.value.replace(/\n/g,' ');grow(inp);G.lines[+inp.dataset.k].text=inp.value;G.lines[+inp.dataset.k].draft=false;if(+inp.dataset.k===G.active)renderTiles()};
+    inp.onfocus=()=>{if(G.active!==+inp.dataset.k){G.active=+inp.dataset.k;placeAid()}};
+    inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}};
+  });
+  document.querySelectorAll('.del').forEach(b=>b.onclick=()=>{G.lines.splice(+b.dataset.d,1);if(!G.lines.length)G.lines.push({text:''});G.active=Math.min(G.active,G.lines.length-1);renderOrders()});
+  document.querySelectorAll('.keys button').forEach(b=>{b.onpointerdown=e=>e.preventDefault();b.onclick=()=>insertText(b.dataset.c,false)});
+  const ad=$('#addo');if(ad)ad.onclick=()=>{G.lines.push({text:''});G.active=G.lines.length-1;renderOrders();$('#ord-'+G.active).focus()};
+  placeAid();
+}
+function grow(t){t.style.height='auto';if(!t.scrollHeight){t.style.height='';return}t.style.height=t.scrollHeight+2+'px'}
+function placeAid(){const row=$('#row-'+G.active),aid=$('#aid');if(row&&aid)row.after(aid);renderTiles()}
+function insertText(w,asWord){const inp=$('#ord-'+G.active);if(!inp)return;let v=inp.value;let s=inp.selectionStart??v.length,e=inp.selectionEnd??v.length;
+  if(document.activeElement!==inp){s=e=v.length}
+  let ins=w;if(asWord){if(s>0&&!/\s$/.test(v.slice(0,s)))ins=' '+ins}
+  v=v.slice(0,s)+ins+v.slice(e);inp.value=v;grow(inp);G.lines[G.active].text=v;G.lines[G.active].draft=false;const p=s+ins.length;inp.focus();try{inp.setSelectionRange(p,p)}catch(x){}renderTiles()}
+function renderTiles(){const box=$('#tiles');if(!box)return;const toks=(G.lines[G.active].text||'').trim().split(/\s+/).filter(Boolean);
+  box.innerHTML=toks.length>1?toks.map(t=>`<span class="tile">${esc(t)}</span>`).join(''):'';
+  box.querySelectorAll('.tile').forEach(t=>t.onpointerdown=startDrag)}
+let drag=null;
+function startDrag(e){e.preventDefault();drag=e.currentTarget;drag.classList.add('drag');document.addEventListener('pointermove',onDrag);document.addEventListener('pointerup',endDrag,{once:true})}
+function onDrag(e){if(!drag)return;const el=document.elementFromPoint(e.clientX,e.clientY);const t=el&&el.closest&&el.closest('.tile');if(!t||t===drag||t.parentNode!==drag.parentNode)return;
+  const kids=[...drag.parentNode.children];if(kids.indexOf(drag)<kids.indexOf(t))t.after(drag);else t.before(drag)}
+function endDrag(){document.removeEventListener('pointermove',onDrag);if(!drag)return;drag.classList.remove('drag');
+  const words=[...drag.parentNode.children].map(c=>c.textContent);drag=null;const v=words.join(' ');G.lines[G.active].text=v;G.lines[G.active].draft=false;const inp=$('#ord-'+G.active);if(inp){inp.value=v;grow(inp)}}
+
+let toastT=0;
+function toast(s){const t=$('#toast');t.textContent=s;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1800)}
+cv.addEventListener('click',e=>{if(G.mode!=='plan')return;const r=cv.getBoundingClientRect();const x=(e.clientX-r.left)*BW/r.width,y=(e.clientY-r.top)*BH/r.height;
+  const h=hitTest(G.N,x,y);if(!h)return;ac();toast(h.w+' · '+h.g);speak(h.w,{});tab('orders');
+  if(document.activeElement&&document.activeElement.id&&document.activeElement.id.startsWith('ord-')){}
+  insertText(h.w,true)});
+
+function coach(s,btn){const c=$('#coach');if(!s){c.hidden=true;return}c.innerHTML=esc(s)+` <button type="button" id="coach-x">${btn||'OK'}</button>`;c.hidden=false;$('#coach-x').onclick=()=>c.hidden=true}
+
+/* ---------- run ---------- */
+const MS=1150;let R=null;
+function startRun(){
+  hush();bedOff();coach(null);if(playing>=0){playing=-1}
+  const N=G.N;if(N.reroll&&G.runs>0){const nN=makeNight(G.id,Math.floor(Math.random()*1e6),{});nN.draft=N.draft;G.N=nN;G.seed=nN.seed}
+  const ctx={};const lines=G.lines.filter(l=>l.text.trim());if(!lines.length)return;
+  const orders=lines.map(l=>parseOrder(l.text,G.N,ctx));
+  const sim=simulate(G.N,orders);G.runs++;
+  R={orders,sim,tau:0,last:-1,speakUntil:0,pending:[],speed:1,flash:0,seenAt:null,ring:0,done:false,t0:performance.now()};
+  G.mode='run';$('#tabs').hidden=true;$('#p-listen').hidden=true;$('#p-orders').hidden=true;$('#p-run').hidden=false;$('#runlog').innerHTML='';
+  $('#b-run').hidden=true;$('#b-skip').hidden=false;$('#b-skip').onclick=()=>{R.speed=8;hush()};
+  orders.forEach((o,k)=>{if(o.unknown){logLine('22:00',`Line ${k+1}: radio says "Hvad?" Not understood, so it was skipped.`,'sys');SFX.hvad()}});
+  SFX.stamp();let lastTs=performance.now();
+  const step=ts=>{if(!R||R.done)return;const dt=Math.min(80,ts-lastTs);lastTs=ts;
+    if(ts>=R.speakUntil&&!R.speaking){R.tau+=dt/MS*R.speed}
+    const t=Math.floor(R.tau);
+    while(R.last<t&&R.last<R.sim.end.t){R.last++;onTick(R.last)}
+    const endT=R.sim.end.t;const fr=R.sim.frames[Math.min(t,endT)];const u=t>=endT?0:R.tau-t;
+    R.flash=Math.max(0,R.flash-dt/600);
+    draw(G.N,{frame:fr,u,flash:R.flash,seenAt:R.flash>0?R.seenAt:null,ring:R.ring>ts});
+    renderTL(Math.min(R.tau,endT));$('#g-sub').textContent=G.N.name+' · '+clock(Math.min(t,endT));
+    if(R.tau>=endT+.9&&!R.speaking){R.done=true;setTimeout(debrief,250);return}
+    requestAnimationFrame(step)};
+  requestAnimationFrame(step);
+}
+function logLine(t,s,cls){const d=document.createElement('div');d.innerHTML=`<span class="t">${t}</span> <span class="${cls||''}">${s}</span>`;$('#runlog').appendChild(d);d.scrollIntoView({block:'nearest'})}
+function placeName(pid){const p=G.N.places[pid];if(!p)return pid;if(p.node)return STREETS[p.node].name;if(p.van)return'bilen';return pretty(NOUNS[p.stem].def)}
+function onTick(t){const N=G.N,sim=R.sim;const evs=sim.log.filter(e=>e.t===t);const fr=sim.frames[t];
+  SFX.tick();const toSay=[];
+  for(const e of evs){
+    if(e.k==='phone'){SFX.ring();R.ring=performance.now()+1600;logLine(clock(t),'The phone rings in caféen.','sys')}
+    if(e.k==='guard'){logLine(clock(t),e.to==='post'?'The guard walks back to his post.':`The guard walks to ${placeName(e.to)}.`,'sys')}
+    if(e.k==='fire'){const o=R.orders[e.idx];const nm=N.ops.find(x=>x.id===o.op).name;
+      if(o.ok){toSay.push(o);logLine(clock(t),`${nm}: ${esc(sentenceOf(o))}`,'good')}
+      else logLine(clock(t),`${nm}: ${esc(o.text)}`,'bad')}
+    if(e.k==='take'){SFX.take();logLine(clock(t),`${N.ops.find(x=>x.id===e.op).name} takes a key.`)}
+    if(e.k==='nokey'){logLine(clock(t),`${N.ops.find(x=>x.id===e.op).name} finds no key at ${placeName(e.at)}.`,'bad')}
+    if(e.k==='seen'){SFX.seen();R.flash=1;R.seenAt=N.places[e.at].spot;setAlarm(fr.alarm);logLine(clock(t),`SEEN at ${placeName(e.at)}.`,'bad');if(navigator.vibrate)try{navigator.vibrate(120)}catch(x){}}
+  }
+  if(t===0)R.orders.forEach((o,k)=>{if(o.nop&&!o.unknown){logLine(clock(0),`Line ${k+1}: ${esc(o.text)} (nothing happens)`,'bad')}});
+  if(toSay.length&&R.speed===1){R.speaking=true;(async()=>{for(const o of toSay)await speak(sentenceOf(o),{rate:1.02});R.speaking=false})()}
+}
+function sentenceOf(o){return sentence(o.toks)}
+
+/* ---------- debrief ---------- */
+function rating(sim,orders){if(!sim.end.win)return'BURNED';if(sim.alarm>0)return'SEEN';const n=orders.filter(o=>!o.unknown).length;return n<=G.N.par?'SILENT':'QUIET'}
+function debrief(){
+  const N=G.N,{sim,orders}=R;G.mode='debrief';
+  const r=rating(sim,orders);const nOrders=orders.filter(o=>!o.unknown).length;
+  let score=0;if(sim.end.win){score=1000-250*sim.alarm-100*Math.max(0,nOrders-N.par)+(10-sim.end.t)*20;if(G.blind)score*=2}
+  score=Math.max(0,Math.round(score));
+  if(sim.end.win)SFX.chord();else SFX.fail();
+  // records
+  const best=store.get('best',{});const prev=best[G.id];const better=!prev||ORDER.indexOf(r)>ORDER.indexOf(prev.r)||(r===prev.r&&score>prev.s);
+  if(better&&r!=='BURNED')best[G.id]={r,s:score};store.set('best',best);
+  if(sim.end.win){store.set('unl',Math.max(store.get('unl',1),Math.min(3,G.id+1)));if(G.tut)store.set('tutDone',true)}
+  if(G.daily&&G.daily.counted){const d=store.get('daily',{});d[G.daily.k]={r,s:score};store.set('daily',d);G.daily.counted=false}
+  const eh=store.get('errs',{});orders.forEach(o=>o.errs.forEach(e=>eh[e.rule]=(eh[e.rule]||0)+1));store.set('errs',eh);
+  const seenR=store.get('rules',[]);orders.forEach(o=>o.errs.forEach(e=>{if(!seenR.includes(e.rule))seenR.push(e.rule)}));store.set('rules',seenR);
+  // what happened
+  const what=[];
+  for(const e of sim.log){if(e.k==='seen')what.push(`${clock(e.t)} · The guard saw ${N.ops.find(x=>x.id===e.op).name} at ${placeName(e.at)}.`);
+    if(e.k==='nokey')what.push(`${clock(e.t)} · ${N.ops.find(x=>x.id===e.op).name} reached ${placeName(e.at)}, but the key wasn't there.`)}
+  if(!sim.end.win){if(sim.end.why==='wrongkey')what.push('A key reached the van, but the wrong one. "en nøgle" means any key, so the nearest one was taken.');
+    else if(sim.end.why==='lockdown')what.push('Three sightings. Lockdown.');else what.push('22:10 · Time ran out. Nøglen never reached the van.')}
+  else what.push(`${clock(sim.end.t)} · Nøglen is in the van.`);
+  orders.forEach((o,k)=>{if(o.unknown)what.push(`Line ${k+1} wasn't understood, so it was skipped. It isn't marked wrong.`);o.notes.forEach(n=>what.push(n))});
+  // errors (max 3 cards)
+  const cards=[];
+  orders.forEach(o=>{if(!o.errs.length)return;const fix=corrected(o);o.errs.forEach(e=>{if(cards.length<3&&!cards.some(c=>c.e.code===e.code))cards.push({e,fix,o})})});
+  const formOf=s=>{if(!s)return'';const o=parseOrder(s,N,{});if(!o.ok)return'';const S=o.slots;
+    return `<div class="form"><table><tr><th>F</th><th>v</th><th>n</th><th>a</th><th>V</th><th>N</th><th>A</th></tr><tr><td>${esc(S.F)}</td><td class="v">${esc(S.v)}</td><td>${esc(S.n)}</td><td></td><td></td><td>${esc(S.N)}</td><td>${esc(S.A)}</td></tr></table></div>`};
+  const html=`<div class="stamp r-${r}">${r}</div>
+    <div class="score"><b>${score.toLocaleString('en')}</b> points${best[G.id]?` · best ${best[G.id].r} ${best[G.id].s.toLocaleString('en')}`:''} ${G.blind&&sim.end.win?'<span class="chip">Blind ×2</span>':''} ${G.daily?'<span class="chip">Tonight\'s seed</span>':''}</div>
+    <ol class="what">${what.slice(0,6).map(w=>`<li>${esc(w)}</li>`).join('')}</ol>
+    ${cards.map(c=>`<div class="err"><header><span class="rid">${c.e.rule}</span><b>${esc(RULES[c.e.rule].n)}</b></header><p>${esc(c.e.msg)}</p>
+      ${c.fix?`<div class="fix"><button class="say" type="button" data-say="${esc(c.fix)}" aria-label="Hear the corrected order">▶</button><span>${esc(c.fix)}</span></div>${formOf(c.fix)}`:''}
+      <p class="tip">${esc(RULES[c.e.rule].tip)}</p></div>`).join('')}
+    ${sim.end.win&&!cards.length&&r==='QUIET'?`<p class="tip">Clean, but over par. ${N.par} orders can do it.</p>`:''}
+    <details><summary>What the bugs said</summary>${N.bugs.map(b=>`<p class="tip"><b>${esc(b.title)}</b> (${b.time})<br>${b.lines.map(l=>esc(l[1])).join('<br>')}</p>`).join('')}</details>
+    <div class="btns"><button class="btn ${sim.end.win?'':'primary'}" id="d-rew" type="button">Rewind</button>
+      <button class="btn" id="d-new" type="button">New numbers</button>
+      ${sim.end.win&&G.id<3?`<button class="btn primary" id="d-next" type="button">Night ${G.id+1}</button>`:''}
+      <button class="btn" id="d-menu" type="button">Menu</button></div>`;
+  openSheet(html);
+  document.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(b.dataset.say,{}));
+  $('#d-rew').onclick=()=>{closeSheet();rewind()};
+  $('#d-new').onclick=()=>{closeSheet();startNight(G.id,{keepLines:true})};
+  const nx=$('#d-next');if(nx)nx.onclick=()=>{closeSheet();startNight(G.id+1)};
+  $('#d-menu').onclick=()=>{closeSheet();toMenu()};
+  if(G.tut&&!sim.end.win)coach('Rewind, fix the order, and make Ida bring the key back to the van (bilen).');
+}
+function rewind(){const keep=G.lines.slice();startNight(G.id,{keepSeed:true,keepLines:true,seed:G.seed});G.lines=keep;renderOrders();tab('orders')}
+function openSheet(h){$('#sheet-in').innerHTML=h;$('#sheet').hidden=false;$('#sheet-in').scrollTop=0}
+function closeSheet(){$('#sheet').hidden=true}
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet'&&G.mode!=='debrief')closeSheet()});
+function toMenu(){hush();bedOff();R=null;G.mode='menu';coach(null);show('menu');renderMenu()}
+$('#g-back').onclick=toMenu;
+$('#b-run').onclick=()=>{ac();startRun()};
+
+/* ---------- order form, voice ---------- */
+function openForm(){const seenR=store.get('rules',[]);
+  openSheet(`<h3>THE ORDER FORM</h3>
+  <p class="tip">Every Danish main clause fills the same slots. Whatever stands in F, the finite verb is always in v.</p>
+  <div class="form"><table><tr><th>F</th><th>v</th><th>n</th><th>a</th><th>V</th><th>N</th><th>A</th></tr>
+  <tr><td>Ida</td><td class="v">går</td><td></td><td></td><td></td><td></td><td>til posthuset om to minutter</td></tr>
+  <tr><td>Om to minutter</td><td class="v">går</td><td>Ida</td><td></td><td></td><td></td><td>til posthuset</td></tr>
+  <tr><td>Derefter</td><td class="v">går</td><td>hun</td><td></td><td></td><td></td><td>tilbage til bilen</td></tr></table></div>
+  <p class="tip">F front · v finite verb · n subject · a adverb (ikke, også) · V other verbs · N object · A place, time, the rest.</p>
+  <p class="tip">Signs on the street: <b>○</b> round plate = en-word (kiosken, bageren). <b>□</b> square plate = et-word (posthuset, apoteket).</p>
+  ${seenR.length?'<h3>RULES YOU HAVE MET</h3>'+seenR.map(k=>`<p class="tip"><span class="rid">${k}</span> <b>${esc(RULES[k].n)}</b><br>${esc(RULES[k].tip)}</p>`).join(''):''}
+  <div class="btns"><button class="btn" type="button" id="f-x">Close</button></div>`);$('#f-x').onclick=closeSheet}
+$('#g-form').onclick=openForm;$('#m-form').onclick=openForm;
+function openVoice(){loadVoices();const cur=(voiceFor()||{}).name;
+  openSheet(`<h3>VOICE</h3>${VOICES.length?`<p class="tip">Pick the Danish voice that sounds least robotic. Enhanced or premium voices are much better.</p>
+    ${VOICES.map(v=>`<div class="voice-row ${v.name===cur?'on':''}"><span>${esc(v.name)}</span><span class="btns"><button class="btn" type="button" data-test="${esc(v.name)}">Test</button><button class="btn ${v.name===cur?'primary':''}" type="button" data-use="${esc(v.name)}">Use</button></span></div>`).join('')}`:
+    `<p class="tip">No Danish voice is installed, so the game shows transcripts instead.</p>`}
+    <p class="tip">iPhone: Settings › Accessibility › Spoken Content › Voices › Danish, then download an Enhanced voice. Android: Settings › Text-to-speech › install Danish. Then reload this page.</p>
+    <div class="btns"><button class="btn" type="button" id="v-x">Close</button></div>`);
+  document.querySelectorAll('[data-test]').forEach(b=>b.onclick=()=>{store.set('voice',b.dataset.test);hush();speak('Om tre minutter går Ida til posthuset.',{})});
+  document.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>{store.set('voice',b.dataset.use);openVoice()});
+  $('#v-x').onclick=closeSheet}
+$('#m-voice').onclick=()=>{ac();openVoice()};
+$('#m-sound').onclick=()=>{muted=!muted;store.set('mute',muted);if(master)master.gain.value=muted?0:.7;renderMenu()};
+window.addEventListener('resize',()=>{if(G.N){fit();if(G.mode==='plan')draw(G.N)}});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(G.N&&G.mode==='plan')draw(G.N)});
+renderMenu();
+window.AFLYT={parseOrder,simulate,makeNight,corrected,tokenize,G,rating};
+</script>

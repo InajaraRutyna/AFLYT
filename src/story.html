@@ -2,86 +2,129 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: a film still on top, the scene's lines below, the action at the thumb. One column, nothing scrolls sideways. */
+/* Layout: picture on top, the scene's lines in the middle, the action at the thumb. Calm light palette, flat geometric art. */
 :root{
-  --bg:#0a0d12; --panel:#11161e; --line:#252e3b; --ink:#ece6d8; --dim:#8b94a1; --lamp:#e7b45a; --coat:#d2463c; --ok:#86c2a6;
-  --vera:#c9a0dc; --ole:#8fc1e3; --phone:#e7b45a;
-  --f-story:"Newsreader",Georgia,"Times New Roman",serif;
-  --f-ui:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
-  color-scheme:dark;
+  --bg:#ECEEF1; --card:#F8F9FA; --ink:#2F3540; --dim:#6B7380; --line:#D6DBE1;
+  --blue:#6F8FAF; --sage:#7FA38C; --ochre:#CF9E4A; --coral:#D2786B; --lilac:#9C91BE; --ok:#4F9476; --bad:#C25E57;
+  --f:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif; --m:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
 }
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-story);
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--f);-webkit-tap-highlight-color:transparent;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
-button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 #app{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
-.bar{height:3px;background:var(--line);margin-top:8px;border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;background:var(--lamp);width:0;transition:width .4s}
-.top{display:flex;justify-content:space-between;align-items:center;padding-block:8px 6px;font:600 11px var(--f-ui);letter-spacing:.12em;color:var(--dim)}
-.top button{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font:600 11px var(--f-ui);letter-spacing:.08em;color:var(--dim)}
-.still{position:relative;border-radius:6px;overflow:hidden;aspect-ratio:16/10;max-height:34vh;width:100%;background:#06080b;flex:0 0 auto}
-.still svg{display:block;width:100%;height:100%}
-.place{position:absolute;left:10px;bottom:8px;font:600 11px var(--f-ui);letter-spacing:.14em;color:var(--ink);text-shadow:0 1px 4px #000}
-.lines{flex:1;min-height:0;overflow:auto;padding-block:14px 8px;display:flex;flex-direction:column;gap:12px}
-.ln{animation:in .35s ease-out}
+.top{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:8px;padding-block:10px 6px}
+.top .t{font:600 12px var(--m);letter-spacing:.1em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{height:34px;min-width:34px;border:1px solid var(--line);border-radius:10px;background:var(--card);font:600 11px var(--m);letter-spacing:.06em;color:var(--dim);padding:0 9px}
+.ib.on{color:var(--blue);border-color:var(--blue)}
+.tools{display:flex;gap:6px}
+.bar{height:4px;background:var(--line);border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .4s}
+#view{flex:1;min-height:0;display:flex;flex-direction:column}
+.still{position:relative;margin-top:10px;border-radius:16px;overflow:hidden;aspect-ratio:16/10;max-height:33vh;flex:0 0 auto;background:#DCE4EC}
+.still>svg{display:block;width:100%;height:100%}
+.still .place{position:absolute;left:10px;top:10px;background:rgba(248,249,250,.86);border-radius:8px;padding:3px 8px;font:600 11px var(--m);letter-spacing:.08em}
+.still.hunt [data-o]{cursor:pointer}
+.still{transition:max-height .3s}.still.mini{max-height:12vh}
+.still [data-o]{transform-box:fill-box;transform-origin:center}
+.still [data-o].hit{animation:pop .4s}
+@keyframes pop{50%{transform:scale(1.04)}}
+.lines{flex:1;min-height:0;overflow:auto;padding-block:12px 6px;display:flex;flex-direction:column;gap:10px}
+.ln{animation:in .3s ease-out;max-width:92%}
 @keyframes in{from{opacity:0;transform:translateY(6px)}}
-.ln .who{font:600 11px var(--f-ui);letter-spacing:.12em;margin-bottom:2px}
-.ln .da{font-size:21px;line-height:1.35}
-.ln.narr .da{font-style:italic;color:#d8d2c4}
-.ln .en{font:14px/1.4 var(--f-ui);color:var(--dim);margin-top:3px}
+.ln .who{font:600 11px var(--m);letter-spacing:.1em;margin-bottom:2px}
+.ln .da{font-size:20px;line-height:1.35;font-weight:500}
+.ln.narr .da{font-style:italic;font-weight:400;color:#4A515D}
+.ln .en{font-size:14px;color:var(--dim);margin-top:2px}
 .ln.solved .da{color:var(--ok)}
-.w-vera{color:var(--vera)} .w-ole{color:var(--ole)} .w-phone{color:var(--phone)} .w-note{color:var(--ink)}
-.act{flex:0 0 auto;padding-block:10px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;border-top:1px solid var(--line)}
-.tapnext{font:600 12px var(--f-ui);letter-spacing:.12em;color:var(--dim);text-align:center;padding:12px 0}
-.q{font:13px var(--f-ui);color:var(--lamp);letter-spacing:.02em}
-.gapline{font-size:21px;line-height:1.35}
-.gap{display:inline-block;min-width:3.2em;border-bottom:2px solid var(--lamp);text-align:center;color:var(--lamp)}
+.ln.me{align-self:flex-end;text-align:right}
+.c-blue{color:var(--blue)} .c-coral{color:var(--coral)} .c-sage{color:var(--sage)} .c-lilac{color:var(--lilac)} .c-ochre{color:var(--ochre)}
+.act{flex:0 0 auto;padding-block:10px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:10px}
+.next{height:48px;border-radius:12px;background:var(--card);border:1px solid var(--line);font:600 13px var(--m);letter-spacing:.1em;color:var(--dim)}
+.q{font-weight:600;font-size:15px;color:var(--ink)}
+.gl{font-size:20px;font-weight:500}.gap{display:inline-block;min-width:2.6em;border-bottom:2px solid var(--blue);color:var(--blue);text-align:center}
 .opts{display:grid;gap:8px}
-.opt{border:1px solid var(--line);border-radius:6px;padding:12px 14px;text-align:left;font-size:19px;background:var(--panel)}
-.opt[disabled]{opacity:.35;text-decoration:line-through}
-.opt.right{border-color:var(--ok);color:var(--ok)}
+.opt{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-size:18px;font-weight:500}
+.opt[disabled]{opacity:.4;text-decoration:line-through}.opt.right{border-color:var(--ok);color:var(--ok)}
+.why{background:#F6E9E6;border-radius:12px;padding:9px 12px;font-size:14px;line-height:1.45}.why b{color:var(--bad)}
+.shake{animation:sh .35s}@keyframes sh{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.replay{justify-self:start;border:1px solid var(--blue);color:var(--blue);border-radius:20px;padding:6px 14px;font:600 12px var(--m)}
 .pieces,.built{display:flex;flex-wrap:wrap;gap:8px;min-height:46px}
-.built{border:1px dashed var(--line);border-radius:6px;padding:8px}
-.pc{border:1px solid var(--line);background:var(--panel);border-radius:5px;padding:9px 12px;font-size:19px}
-.pc.used{visibility:hidden}
-.built .pc{border-color:var(--lamp)}
-.why{border-left:3px solid var(--coat);padding:6px 10px;font:14px/1.45 var(--f-ui);color:var(--ink);background:rgba(210,70,60,.08)}
-.why b{color:var(--coat)}
-.shake{animation:sh .35s}
-@keyframes sh{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.pad button{height:52px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font:600 20px var(--f-ui)}
-.code{display:flex;gap:10px;justify-content:center;font:600 30px var(--f-ui)}
-.code span{width:44px;height:54px;border-bottom:2px solid var(--lamp);display:grid;place-items:center}
-.replay{justify-self:start;border:1px solid var(--lamp);color:var(--lamp);border-radius:20px;padding:6px 14px;font:600 12px var(--f-ui);letter-spacing:.08em}
-.end{display:grid;gap:14px;padding-block:16px}
-.end h2{font:italic 400 40px/1.05 var(--f-story);margin:0}
-.end .k{font:12px/1.6 var(--f-ui);color:var(--dim)}
-.btn{min-height:48px;border-radius:6px;border:1px solid var(--line);font:600 14px var(--f-ui);letter-spacing:.06em;padding:0 16px}
-.scard{display:grid;grid-template-columns:30px 1fr 20px;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--panel)}
-.scard .sn{font:600 13px var(--f-ui);color:var(--lamp)}.scard b{display:block;font-size:20px;font-weight:600}.scard small{font:12px var(--f-ui);color:var(--dim)}.scard .sd{color:var(--ok);font:600 16px var(--f-ui)}
-.w-you{color:var(--ink)}
-.btn.main{background:var(--lamp);border-color:var(--lamp);color:var(--bg)}
-.sheet{position:fixed;inset:0;background:rgba(4,6,9,.75);display:flex;align-items:flex-end;justify-content:center;z-index:9}
-.sheet>div{width:100%;max-width:480px;background:var(--panel);border-radius:10px 10px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:grid;gap:10px;max-height:80%;overflow:auto;font:14px/1.5 var(--f-ui)}
-.vrow{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
-.vrow.on{border-color:var(--lamp)}
-.rain line{stroke:rgba(180,200,230,.35);stroke-width:1;animation:rain .9s linear infinite}
-@keyframes rain{from{transform:translateY(-40px)}to{transform:translateY(60px)}}
-.flick{animation:fl 4s infinite}
-@keyframes fl{0%,92%,100%{opacity:1}93%{opacity:.4}95%{opacity:.9}97%{opacity:.5}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+.built{border:1.5px dashed var(--line);border-radius:12px;padding:8px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:18px;font-weight:500;box-shadow:0 1px 0 var(--line)}
+.pc.used{visibility:hidden}.built .pc{border-color:var(--blue)}
+/* sort */
+.card{justify-self:center;min-width:60%;text-align:center;background:var(--card);border-radius:16px;padding:18px 20px;font-size:24px;font-weight:600;box-shadow:0 6px 18px rgba(47,53,64,.10);touch-action:none;user-select:none;-webkit-user-select:none}
+.card small{display:block;font:500 12px var(--m);color:var(--dim);margin-top:4px}
+.bins{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:8px}
+.bin{border-radius:14px;padding:14px 6px;font:600 16px var(--f);color:#fff;min-height:64px;display:grid;place-items:center;transition:transform .15s}
+.bin small{font:500 12px var(--m);opacity:.85}
+.bin.flash{transform:scale(1.06)}
+.b0{background:var(--blue)}.b1{background:var(--sage)}.b2{background:var(--ochre)}.b3{background:var(--lilac)}
+.drag{position:fixed;z-index:30;pointer-events:none;opacity:.92;transform:translate(-50%,-50%) rotate(-2deg)}
+/* map */
+.map{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--card);border-radius:16px;padding:8px}
+.lot{min-height:58px;border:1.5px dashed var(--line);border-radius:10px;display:grid;place-items:center;text-align:center;font-size:13px;font-weight:600;padding:4px}
+.lot.fix{border-style:solid;background:#E4E9EE;color:var(--dim)}
+.lot.drop{border-color:var(--blue);background:#E7EEF6}
+.lot svg,.chip svg{width:22px;height:22px;display:block;margin:0 auto 2px}
+.street{grid-column:1/-1;height:26px;border-radius:6px;background:#D9DEE4;display:grid;place-items:center;font:600 11px var(--m);letter-spacing:.12em;color:var(--dim)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--card);border:1.5px solid var(--blue);border-radius:12px;padding:6px 12px;font-size:14px;font-weight:600;touch-action:none;user-select:none;-webkit-user-select:none;text-align:center}
+.chip.sel{background:var(--blue);color:#fff}
+.clues{display:grid;gap:4px;font-size:16px;font-weight:500}
+.clues button{text-align:left}
+/* timeline */
+.tl{position:relative;height:96px;background:var(--card);border-radius:16px;margin-top:4px}
+.tl .axis{position:absolute;left:6%;right:6%;top:58px;height:3px;background:var(--line);border-radius:2px}
+.tl .tk{position:absolute;top:44px;width:30px;height:30px;margin-left:-15px;border-radius:50%;display:grid;place-items:center}
+.tl .tk i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.tl .tk.drop i{background:var(--blue)}.tl .tk.now i{background:var(--ink)}
+.tl .lb{position:absolute;top:76px;transform:translateX(-50%);font:500 11px var(--m);color:var(--dim);white-space:nowrap}
+.tl .pin{position:absolute;top:6px;transform:translateX(-50%);background:var(--blue);color:#fff;border-radius:8px;padding:3px 7px;font-size:12px;font-weight:600;white-space:nowrap}
+/* clock */
+.clock{position:relative;width:220px;height:220px;justify-self:center;border-radius:50%;background:var(--card);box-shadow:inset 0 0 0 2px var(--line)}
+.clock button{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;font-weight:600;font-size:16px}
+.clock button:active,.clock button.right{background:var(--blue);color:#fff}
+.clock .mid{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center;font:600 14px var(--m);color:var(--dim)}
+/* home */
+.home{flex:1;min-height:0;overflow:auto;padding-block:12px;display:grid;gap:12px;align-content:start}
+.home h1{font-size:34px;line-height:1.05;margin:4px 0 0;font-weight:700;letter-spacing:-.01em}
+.home p{margin:0;color:var(--dim)}
+.tabs{display:flex;gap:6px;background:#E1E5EA;border-radius:12px;padding:4px}
+.tab{flex:1;height:36px;border-radius:9px;font:600 12px var(--m);letter-spacing:.08em;color:var(--dim)}.tab.on{background:var(--card);color:var(--ink)}
+.sc{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;text-align:left;background:var(--card);border-radius:14px;padding:10px 12px}
+.sc .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700}
+.sc b{display:block;font-size:18px}.sc small{color:var(--dim);font-size:13px}
+.stars{font-size:14px;letter-spacing:1px;color:var(--ochre)}.stars .off{color:var(--line)}
+.best{font:600 12px var(--m);color:var(--dim)}
+.btn{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);font:600 14px var(--m);letter-spacing:.05em;padding:0 16px}
+.btn.main{background:var(--blue);border-color:var(--blue);color:#fff}
+.end{display:grid;gap:8px;background:var(--card);border-radius:16px;padding:14px}
+.end h2{margin:0;font-size:28px}
+.k{font:500 13px/1.6 var(--m);color:var(--dim)}
+/* arcade */
+.hud{display:flex;justify-content:space-between;align-items:center;font:600 14px var(--m);padding-block:12px 4px}
+.hud .combo{color:var(--ochre)}
+.timer{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.timer i{display:block;height:100%;background:var(--sage)}
+.arena{flex:1;min-height:0;display:grid;align-content:center;gap:18px}
+.fb{min-height:44px;text-align:center;font-size:15px}
+.fb .ok{color:var(--ok);font-weight:600}.fb .no{color:var(--bad)}
+.sheet{position:fixed;inset:0;background:rgba(47,53,64,.35);display:flex;align-items:flex-end;justify-content:center;z-index:40}
+.sheet>div{width:100%;max-width:480px;background:var(--card);border-radius:16px 16px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:grid;gap:10px;max-height:80%;overflow:auto}
+.vrow{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:6px 10px}.vrow.on{border-color:var(--blue)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
 <div id="app">
+  <header class="top"><button class="ib" id="b-home" type="button" aria-label="Home">‹</button><span class="t" id="ttl">SMÅ SCENER</span>
+    <span class="tools"><button class="ib" id="b-en" type="button">EN</button><button class="ib" id="b-voice" type="button">VOICE</button></span></header>
   <div class="bar"><i id="prog"></i></div>
-  <div class="top"><span id="ep">CHAPTER 1 · SCENES</span><span style="display:flex;gap:6px"><button id="b-home" type="button">SCENES</button><button id="b-en" type="button">EN</button><button id="b-voice" type="button">VOICE</button></span></div>
-  <div class="still" id="still"></div>
-  <div class="lines" id="lines" aria-live="polite"></div>
-  <div class="act" id="act"></div>
+  <main id="view"></main>
 </div>
 <div class="sheet" id="sheet" hidden><div id="sheet-in"></div></div>
 
@@ -89,23 +132,43 @@ button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
 'use strict';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const store={get(k,d){try{const v=localStorage.getItem('noeglen1:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('noeglen1:'+k,JSON.stringify(v))}catch(e){}}};
+const store={get(k,d){try{const v=localStorage.getItem('scener2:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('scener2:'+k,JSON.stringify(v))}catch(e){}}};
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
 
-/* ---------- rules (chapter 1) ---------- */
-const R={R0:'Jobs take no article',R1:'på grund af + a noun',R2:'for at + infinitive',R3:'After fordi / når, ikke comes before the verb',
- R5:'The verb comes second',R6:'Past tense',R7:'for … siden · om · i',R8:'når · da · hvornår',R9:'Where the adverb goes',R10:'Place words',
- R11:'i or på with a street',R12:'en/et and the definite form',R13:'den · det · de · der',R14:'Short answers',R15:'glad for · træt af',R16:'mange · meget',R17:'Compound words'};
-const S={narr:{who:'',cls:'narr',pitch:1,rate:.95},you:{who:'YOU',cls:'w-you',pitch:1,rate:.95},man:{who:'THE MAN',cls:'w-ole',pitch:.85,rate:1},
- tomas:{who:'TOMAS',cls:'w-ole',pitch:.85,rate:1},mikkel:{who:'MIKKEL',cls:'w-ole',pitch:.9,rate:1},mor:{who:'MOR',cls:'w-vera',pitch:1.2,rate:.92},
- kvinde:{who:'THE WOMAN',cls:'w-vera',pitch:1.15,rate:.95},bent:{who:'BENT',cls:'w-phone',pitch:.75,rate:.95}};
+/* ---------- chapter 1 rules ---------- */
+const R={R0:'Jobs take no article',R1:'på grund af + a noun',R2:'for at + infinitive',R3:'After fordi / når, ikke comes before the verb',R5:'The verb comes second',
+ R6:'Past tense',R7:'for … siden · om · i',R8:'når · da · hvornår',R9:'Where the adverb goes',R10:'Place words',R11:'i or på with places',
+ R12:'en/et and the definite form',R13:'den · det · de · der',R14:'Short answers',R15:'glad for · træt af',R16:'mange · meget',R17:'Compound words'};
+const SP={narr:{who:'',c:'',p:1,r:.95},you:{who:'YOU',c:'',p:1,r:.95,me:1},man:{who:'THE MAN',c:'c-blue',p:.85,r:1},tomas:{who:'TOMAS',c:'c-blue',p:.85,r:1},
+ mikkel:{who:'MIKKEL',c:'c-sage',p:.9,r:1},mor:{who:'MOR',c:'c-coral',p:1.2,r:.92},kvinde:{who:'THE WOMAN',c:'c-lilac',p:1.15,r:.95},bent:{who:'BENT',c:'c-ochre',p:.75,r:.95}};
+
+/* ---------- icons (24px line icons) ---------- */
+const IP={};const I=(p)=>{const k='i'+Object.keys(IP).length;IP[k]=p;return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-ip="${k}">${p}</svg>`};
+const iconAt=(name,x,y,sz,col)=>ICON[name].replace('<svg ',`<svg x="${x}" y="${y}" width="${sz}" height="${sz}" color="${col}" `);
+const ICON={
+ bager:I('<path d="M4 14c0-4 4-7 8-7s8 3 8 7v3H4z"/><path d="M9 9l1 4M14 9l-1 4"/>'),
+ kirke:I('<path d="M12 2v5M10 4h4M6 21V12l6-5 6 5v9z"/><path d="M10 21v-4h4v4"/>'),
+ apotek:I('<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>'),
+ park:I('<path d="M12 21v-6"/><path d="M12 3c4 0 6 3 6 6s-3 6-6 6-6-3-6-6 2-6 6-6z"/>'),
+ bibliotek:I('<path d="M5 20V5M9 20V5M13 20l3-15 4 1-3 14"/><path d="M3 20h18"/>'),
+ restaurant:I('<path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 2-2 6 0 8v10"/>'),
+ skobutik:I('<path d="M3 16v-5l5 1 4 3h6a3 3 0 0 1 3 3H3z"/>'),
+ bog:I('<path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1z"/><path d="M12 6v14"/>')
+};
+
+/* ---------- the scenes ---------- */
 const C=(id,line,opts,rule,why,o={})=>({p:'choose',id,line,opts,ok:0,rule,why,...o});
 const SCENES=[
- {id:'kaffe',title:'Kaffemaskinen',place:'KONTORET · 09:00',sec:'Hvorfor flyttede du til Danmark?',art:'kaffe',beats:[
+ {id:'kaffe',title:'Kaffemaskinen',place:'KONTORET · 09:00',sec:'Why did you move here?',col:'var(--blue)',art:'kaffe',beats:[
   {s:'narr',da:'Klokken er ni. Du står ved kaffemaskinen.',en:"It's nine o'clock. You're standing at the coffee machine."},
   {s:'man',da:'Hej! Er du ny her?',en:'Hi! Are you new here?'},
   C('k1','___',['Ja, det er jeg.','Ja, det gør jeg.','Ja, jeg er.'],'R14','The question uses er, so the short answer repeats er: Ja, det er jeg. With other verbs you use gør.',{q:'Answer: yes, you are.',s:'you',en:'Yes, I am.'}),
-  {s:'man',da:'Velkommen! Hvad lavede du, før du kom hertil?',en:'Welcome! What did you do before you came here?'},
+  {s:'man',da:'Velkommen! Før jeg kom hertil, arbejdede jeg i en bank i Mumbai.',en:'Welcome! Before I came here, I worked in a bank in Mumbai.'},
+  {s:'man',da:'Jeg læste økonomi, og jeg boede tæt på havet.',en:'I studied economics, and I lived close to the sea.'},
+  {p:'sort',id:'k-sort',q:'Sort the past tense forms he used.',bins:['-ede','-te','irregular'],items:[['arbejdede',0],['boede',0],['læste',1],['kom',2]],rule:'R6',
+   why:'Group 1 adds -ede (arbejdede, boede). Group 2 adds -te (læste, købte). Irregular verbs change: kom, gik, tog, var.'},
+  {s:'man',da:'Og du? Hvad lavede du, før du kom hertil?',en:'And you? What did you do before you came here?'},
   C('k2','Jeg ___ som designer i Berlin.',['arbejdede','arbejdte','arbejder'],'R6','arbejde takes -ede in the past: arbejdede. arbejder is the present.',{q:'Your old job.',s:'you',en:'I worked as a designer in Berlin.'}),
   C('k3','Jeg var ___.',['designer','en designer'],'R0','After er, var or arbejdede som, a job has no article: Jeg var designer.',{q:'Say what you were.',s:'you',en:'I was a designer.'}),
   {s:'man',da:'Og hvorfor kom du hertil?',en:'And why did you come here?'},
@@ -119,7 +182,7 @@ const SCENES=[
   {s:'man',da:'Med den nye designer.',en:'With the new designer.'},
   {s:'narr',da:'Han smiler.',en:'He smiles.'},
   {s:'man',da:'Det er dig. Jeg er din nye chef. Vi ses om fem minutter.',en:"That's you. I'm your new boss. See you in five minutes."}]},
- {id:'middag',title:'Middagen',place:'HOS SARA · 19:30',sec:'Hvorfor flyttede du til Danmark?',art:'middag',beats:[
+ {id:'middag',title:'Middagen',place:'HOS SARA · 19:30',sec:'Why did you move here?',col:'var(--ochre)',art:'middag',beats:[
   {s:'narr',da:'Du er til middag hos din veninde Sara. Ved bordet sidder en mand, du ikke kender.',en:"You're at dinner at your friend Sara's. At the table sits a man you don't know."},
   {s:'tomas',da:'Hej, jeg hedder Tomas. Jeg er fra Tyskland.',en:"Hi, I'm Tomas. I'm from Germany."},
   C('m1','Hvorfor ___ du til Danmark?',['flyttede','flyttet','flytted'],'R6','flytte takes -ede in the past: flyttede.',{q:'Ask him why he moved.',s:'you',en:'Why did you move to Denmark?'}),
@@ -127,17 +190,24 @@ const SCENES=[
   {s:'you',da:'Nåh. Og hvad lavede du i Tyskland?',en:'Oh. And what did you do in Germany?'},
   C('m3','Jeg ___ i fransk på en skole.',['underviste','undervisede','undervist'],'R6','undervise takes -te in the past: underviste. Like læse → læste and købe → købte.',{q:'He taught French.',s:'tomas',en:'I taught French at a school.'}),
   {s:'tomas',da:'Men her kunne jeg ikke finde arbejde. Så nu har jeg min egen restaurant.',en:"But here I couldn't find work. So now I have my own restaurant."},
+  {s:'tomas',da:'Den ligger på Nørrebrogade, overfor parken og ved siden af biblioteket.',en:"It's on Nørrebrogade, opposite the park and next to the library."},
+  {s:'tomas',da:'Og min yndlingsbager ligger ved siden af parken.',en:'And my favourite bakery is next to the park.'},
+  {p:'map',id:'m-map',q:'Drag his restaurant and the bakery onto the street.',street:'NØRREBROGADE',fixed:{parken:[1,1,'park'],biblioteket:[0,0,'bibliotek']},
+   items:[['restauranten','restaurant'],['bageren','bager']],clues:[['restauranten','overfor','parken','Restauranten ligger overfor parken.'],['restauranten','ved','biblioteket','Restauranten ligger ved siden af biblioteket.'],['bageren','ved','parken','Bageren ligger ved siden af parken.']],
+   rule:'R10',why:'overfor = across the street, at the same spot. ved siden af = right next to it, on the same side.'},
   {p:'order',id:'m4',q:'Why does he have a restaurant?',s:'narr',prefix:'Han har en restaurant, fordi',pieces:['han','kunne','ikke','finde arbejde'],
    answers:[['Han har en restaurant, fordi han ikke kunne finde arbejde.',['han','ikke','kunne','finde arbejde']]],en:"He has a restaurant because he couldn't find work.",rule:'R3',why:'After fordi, ikke comes before the verb: fordi han ikke kunne. In a main clause it is: han kunne ikke.'},
   {s:'you',da:'Og kvinden? Hvor er hun?',en:'And the woman? Where is she?'},
   {p:'listen',id:'m5',q:'Listen. Where is she?',s:'tomas',say:'Hun sidder ved siden af dig.',opts:['Next to you.','Opposite you.','Close to the kitchen.'],ok:0,rule:'R10',why:'ved siden af = next to. overfor = opposite. tæt på = close to.'},
   {s:'narr',da:'Ved siden af dig sidder Saras mor. Hun er 71. Hun vinker.',en:"Next to you sits Sara's mother. She is 71. She waves."}]},
- {id:'bio',title:'Biografen',place:'PÅ VEJ I BIOGRAFEN · 20:10',sec:'Hvor længe skal du være her?',art:'bio',beats:[
+ {id:'bio',title:'Biografen',place:'PÅ VEJ I BIOGRAFEN · 20:10',sec:'How long are you staying?',col:'var(--lilac)',art:'bio',beats:[
   {s:'narr',da:'Du og din ven Mikkel er på vej i biografen.',en:'You and your friend Mikkel are on your way to the cinema.'},
   {s:'mikkel',da:'Hvornår flyttede du egentlig hertil?',en:'When did you actually move here?'},
   C('b1','Jeg flyttede hertil ___ et halvt år siden.',['for','om','i'],'R7','for … siden = ago: for et halvt år siden.',{q:'Half a year ago.',s:'you',en:'I moved here half a year ago.'}),
   {s:'mikkel',da:'Og hvor længe skal du være her?',en:'And how long will you be here?'},
-  C('b2','Jeg skal være her ___ to år.',['i','om','for'],'R7','i = a length of time: i to år (for two years). om = from now.',{q:'Two years.',s:'you',en:"I'll be here for two years."}),
+  C('b2','Jeg skal være her ___ to år.',['i','om','for'],'R7','i = a length of time: i to år (for two years). om = from now.',{q:'Two years in total.',s:'you',en:"I'll be here for two years."}),
+  {p:'timeline',id:'b-tl',q:'Put both on the line. You moved here half a year ago and stay two years in total.',items:[['Jeg flyttede hertil',-6],['Jeg rejser hjem',18]],rule:'R7',
+   why:'for et halvt år siden = 6 months back. i to år = 24 months in total, so 18 months are left: om halvandet år.'},
   C('b3','Jeg rejser hjem, ___ min kontrakt udløber.',['når','da','hvornår'],'R8','når = when, about the future (or every time). da = one time in the past. hvornår asks a question.',{q:'And then?',s:'you',en:'I go home when my contract runs out.'}),
   {s:'mikkel',da:'Er du glad for at bo her?',en:'Are you happy living here?'},
   C('b4','___',['Ja, det er jeg.','Ja, det gør jeg.'],'R14','The question uses er, so: Ja, det er jeg.',{q:'Answer: yes.',s:'you',en:'Yes, I am.'}),
@@ -148,7 +218,7 @@ const SCENES=[
   {s:'narr',da:'Du kigger på billetterne.',en:'You look at the tickets.'},
   {p:'listen',id:'b6',q:'Listen. What happened?',s:'narr',say:'Filmen begyndte for en time siden.',opts:['The film started an hour ago.','The film starts in an hour.','The film lasts an hour.'],ok:0,rule:'R7',why:'begyndte is past, and for en time siden = an hour ago.'},
   {s:'mikkel',da:'Nåh. Så tager vi en øl i stedet.',en:"Oh well. Then we'll have a beer instead."}]},
- {id:'mor',title:'Mor ringer',place:'SØNDAG AFTEN',sec:'Hvor længe skal du være her?',art:'mor',beats:[
+ {id:'mor',title:'Mor ringer',place:'SØNDAG AFTEN',sec:'How long are you staying?',col:'var(--coral)',art:'mor',beats:[
   {s:'narr',da:'Søndag aften ringer din mor.',en:'On Sunday evening your mother calls.'},
   {s:'mor',da:'Hej skat! Er du glad for at være i Danmark?',en:'Hi darling! Are you happy being in Denmark?'},
   C('o1','Ja, men jeg savner dig, når ___.',['jeg ikke har nogen at snakke med','jeg har ikke nogen at snakke med','har jeg ikke nogen at snakke med'],'R3','After når (and fordi, da, at), ikke comes before the verb: når jeg ikke har.',{q:'Yes, but …',s:'you',en:"Yes, but I miss you when I don't have anyone to talk to."}),
@@ -161,28 +231,36 @@ const SCENES=[
   {s:'mor',da:'Hvornår kommer du hjem?',en:'When are you coming home?'},
   C('o4','___ seks måneder.',['Om','For','I'],'R7','om = from now: om seks måneder (in six months).',{q:'In six months.',s:'you',en:'In six months.'}),
   {p:'listen',id:'o5',q:'Listen. What is she saying?',s:'mor',say:'Seks måneder? Nej. Jeg kommer om to timer.',opts:['She is coming in two hours.','She came two hours ago.','She is staying for two hours.'],ok:0,rule:'R7',why:'om to timer = two hours from now.'},
+  {s:'narr',da:'Klokken er syv om aftenen.',en:"It's seven in the evening."},
+  {p:'clock',id:'o-clock',q:'It is 19:00, and she comes om to timer. Tap the hour she lands.',now:7,ok:9,rule:'R7',why:'om to timer = two hours from now: 19:00 + 2 = 21:00, nine o\'clock.'},
   {s:'mor',da:'Jeg er i lufthavnen. Er der en god bager i nærheden af dig?',en:"I'm at the airport. Is there a good bakery near you?"},
   C('o6','Ja, ___ er der.',['det','der','den'],'R13','The short answer to "Er der …?" is: Ja, det er der.',{q:'Yes, there is.',s:'you',en:'Yes, there is.'}),
   {s:'narr',da:'Du kigger rundt i lejligheden. Den er ikke ren.',en:"You look around the flat. It isn't clean."}]},
- {id:'apotek',title:'Apoteket',place:'NØRREBRO · LØRDAG',sec:'Hvor ligger den henne?',art:'apotek',beats:[
+ {id:'apotek',title:'Apoteket',place:'NØRREBRO · LØRDAG',sec:'Where is it?',col:'var(--sage)',art:'gade',beats:[
   {s:'narr',da:'Du er ny på Nørrebro, og du har hovedpine.',en:"You're new in Nørrebro, and you have a headache."},
-  C('a1','Undskyld, er der ___ apotek her i nærheden?',['et','en','det'],'R12','apotek is an et-word, and it is new in the conversation, so: et apotek.',{q:'Ask a woman.',s:'you',en:'Excuse me, is there a pharmacy near here?'}),
+  {s:'narr',da:'Du kigger rundt. Hvad er der i gaden?',en:"You look around. What's on the street?"},
+  {p:'hunt',id:'a-hunt',q:'Listen, then tap the place in the picture.',targets:['bager','kirke','skobutik','boghandler'],rule:'R12',why:'Each place has a picture and a sound. The definite form names the one in front of you: bageren, kirken.'},
+  C('a1','Undskyld, er der ___ apotek her i nærheden?',['et','en','det'],'R12','apotek is an et-word, and it is new in the conversation, so: et apotek.',{q:'No pharmacy. Ask a woman.',s:'you',en:'Excuse me, is there a pharmacy near here?'}),
   {s:'kvinde',da:'Ja, der ligger et apotek i Blågårdsgade.',en:'Yes, there is a pharmacy on Blågårdsgade.'},
   C('a2','Hvor i Blågårdsgade ligger ___?',['det','den','de'],'R13','et apotek → det. An en-word would be den; a plural would be de.',{q:'Where exactly?',s:'you',en:'Where on Blågårdsgade is it?'}),
-  {p:'listen',id:'a3',q:'Listen. Where is it?',s:'kvinde',say:'Det ligger lige overfor kirken, ved siden af bageren.',opts:['Opposite the church, next to the bakery.','Next to the church, opposite the bakery.','Near the church, behind the bakery.'],ok:0,rule:'R10',why:'overfor = opposite. ved siden af = next to. lige makes it exact.'},
+  {s:'kvinde',da:'Det ligger lige overfor kirken, ved siden af bageren.',en:"It's right opposite the church, next to the bakery."},
+  {p:'map',id:'a-map',q:'Drag the pharmacy to where she says.',street:'BLÅGÅRDSGADE',fixed:{kirken:[1,1,'kirke'],bageren:[0,0,'bager']},items:[['apoteket','apotek']],
+   clues:[['apoteket','overfor','kirken','Apoteket ligger overfor kirken.'],['apoteket','ved','bageren','Apoteket ligger ved siden af bageren.']],rule:'R10',why:'overfor = across the street, at the same spot. ved siden af = right next to it, on the same side.'},
   {s:'kvinde',da:'Bor du her i nærheden?',en:'Do you live near here?'},
   C('a4','Ja, jeg bor ___ Jagtvej.',['på','i'],'R11','Jagtvej is a -vej, so på. Blågårdsgade is a -gade, so i.',{q:'Where you live.',s:'you',en:'Yes, I live on Jagtvej.'}),
   {s:'kvinde',da:'Og du kan ikke finde apoteket?',en:"And you can't find the pharmacy?"},
   C('a5','Nej. Jeg har ledt efter ___ i en time.',['apoteket','et apotek','apotek'],'R12','Now you both know which pharmacy, so the definite form: apoteket. (i en time = for an hour.)',{q:'No.',s:'you',en:"No. I've been looking for the pharmacy for an hour."}),
   {s:'narr',da:'Hun peger. Blågårdsgade er lige her. Apoteket ligger lige bag dig.',en:'She points. Blågårdsgade is right here. The pharmacy is right behind you.'}]},
- {id:'vaerelse',title:'Værelset',place:'ET VÆRELSE TIL LEJE',sec:'Hvor ligger den henne?',art:'vaerelse',beats:[
+ {id:'vaerelse',title:'Værelset',place:'ET VÆRELSE TIL LEJE',sec:'Where is it?',col:'var(--blue)',art:'vaerelse',beats:[
   {s:'narr',da:'Du skal leje et værelse. Udlejeren hedder Bent.',en:"You're going to rent a room. The landlord is called Bent."},
   {s:'bent',da:'Velkommen! Værelset er lille, men der er meget lys.',en:"Welcome! The room is small, but there's a lot of light."},
   {s:'you',da:'Er du glad for at bo her, Bent?',en:'Are you happy living here, Bent?'},
   C('v1','___',['Ja, det er jeg.','Ja, det gør jeg.'],'R14','The question uses er, so: Ja, det er jeg.',{q:'Bent answers yes.',s:'bent',en:'Yes, I am.'}),
   {s:'bent',da:'Der er mange caféer og butikker, og det kan jeg godt lide.',en:'There are lots of cafés and shops, and I like that.'},
   C('v2','Men der er ___ trafik.',['meget','mange'],'R16','trafik cannot be counted, so meget. Countable things take mange: mange biler.',{q:'But …',s:'bent',en:"But there's a lot of traffic."}),
-  C('v3','Og det er jeg lidt træt ___.',['af','for','på'],'R15','It is always træt af (tired of) and glad for (happy with). Learn them as pairs.',{q:'How he feels about it.',s:'bent',en:"And I'm a bit tired of it."}),
+  {p:'sort',id:'v-sort',q:"What's on Bent's street? Sort them.",bins:['mange','meget'],items:[['biler',0],['larm',1],['butikker',0],['lys',1],['mennesker',0]],rule:'R16',
+   why:'mange for things you can count (biler, butikker, mennesker). meget for things you cannot count (larm, lys, trafik).'},
+  C('v3','Og det er jeg lidt træt ___.',['af','for','på'],'R15','It is always træt af (tired of) and glad for (happy with). Learn them as pairs.',{q:'How he feels about the traffic.',s:'bent',en:"And I'm a bit tired of it."}),
   C('v4','Nedenunder ligger min ___.',['yndlingsbager','bageryndlings','yndlings bager'],'R17','yndlings- goes in front and is written together: yndlingsbager, yndlingscafé. The last part decides en or et.',{q:'His favourite bakery.',s:'bent',en:'Downstairs is my favourite bakery.'}),
   {s:'bent',da:'Kender du den?',en:'Do you know it?'},
   C('v5','___',['Næ, det gør jeg ikke.','Næ, det er jeg ikke.','Næ, jeg kender ikke.'],'R14','kende is a normal verb, so the short answer uses gør: Næ, det gør jeg ikke.',{q:'Answer: no.',s:'you',en:"No, I don't."}),
@@ -192,119 +270,237 @@ const SCENES=[
   {s:'bent',da:'Og ja. Derfor er værelset så billigt.',en:"And yes. That's why the room is so cheap."}]}
 ];
 SCENES.forEach(sc=>sc.beats.forEach(b=>{if(b.p)b.scene=sc.id}));
+const HUNT={bager:['bageren','the bakery'],kirke:['kirken','the church'],skobutik:['skobutikken','the shoe shop'],boghandler:['boghandleren','the bookshop'],hus:['huset','the house']};
 
-/* ---------- art: one still per scene ---------- */
-const rain=(n,w,h)=>{let s='<g class="rain">';for(let i=0;i<n;i++){const x=(i*37)%w,y=(i*53)%h;s+=`<line x1="${x}" y1="${y}" x2="${x-4}" y2="${y+14}" style="animation-delay:${(i%9)*-.1}s"/>`}return s+'</g>'};
-const glow=(id,c,o)=>`<radialGradient id="${id}"><stop offset="0" stop-color="${c}" stop-opacity="${o}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`;
+/* ---------- art: flat, muted, light ---------- */
 const ART={
-kaffe:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g1','#e7b45a','.35')}</defs><rect width="320" height="200" fill="#121821"/><rect x="190" y="20" width="110" height="80" fill="#1d2a3a"/><line x1="245" y1="20" x2="245" y2="100" stroke="#121821" stroke-width="3"/>
-<rect x="60" y="50" width="80" height="120" rx="6" fill="#0b0e13" stroke="#3a4658"/><rect x="72" y="62" width="56" height="18" rx="2" fill="#86c2a6" class="flick"/><rect x="88" y="120" width="24" height="26" fill="#ece6d8"/><circle cx="100" cy="120" r="50" fill="url(#g1)"/>
-<path d="M95 112c-6-8 6-12 0-20M105 112c-6-8 6-12 0-20" stroke="#ece6d8" stroke-opacity=".5" fill="none"/><rect y="170" width="320" height="30" fill="#0a0d12"/></svg>`,
-middag:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g2','#e7b45a','.45')}</defs><rect width="320" height="200" fill="#140f0c"/><circle cx="160" cy="90" r="120" fill="url(#g2)"/><ellipse cx="160" cy="140" rx="140" ry="34" fill="#2a1d15"/>
-<ellipse cx="100" cy="140" rx="22" ry="8" fill="#ece6d8"/><ellipse cx="220" cy="140" rx="22" ry="8" fill="#ece6d8"/><rect x="156" y="96" width="8" height="34" fill="#ece6d8"/><path d="M160 82c-5 6-3 12 0 14 3-2 5-8 0-14z" fill="#e7b45a" class="flick"/>
-<path d="M128 120l6 18M190 120l-6 18" stroke="#d2463c" stroke-width="5"/><circle cx="40" cy="80" r="16" fill="#0a0806"/><rect x="24" y="96" width="32" height="40" fill="#0a0806"/><circle cx="282" cy="80" r="16" fill="#0a0806"/><rect x="266" y="96" width="32" height="40" fill="#0a0806"/></svg>`,
-bio:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#0b0d14"/><rect x="70" y="30" width="180" height="130" fill="#141a26"/><rect x="90" y="44" width="140" height="34" fill="#1d1410" stroke="#e7b45a"/>
-<text x="160" y="68" text-anchor="middle" font-family="monospace" font-weight="700" font-size="18" fill="#e7b45a" letter-spacing="6" class="flick">BIOGRAF</text>${Array.from({length:14},(_,i)=>`<circle cx="${96+i*10}" cy="86" r="2" fill="#e7b45a" opacity="${i%2?.9:.4}"/>`).join('')}
-<rect x="130" y="100" width="60" height="60" fill="#e7b45a" opacity=".18"/>${rain(36,320,200)}<rect y="160" width="320" height="40" fill="#0e121b"/></svg>`,
-mor:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g3','#86c2a6','.35')}</defs><rect width="320" height="200" fill="#0a0c10"/><circle cx="160" cy="100" r="110" fill="url(#g3)"/><rect x="128" y="34" width="64" height="132" rx="10" fill="#0d1a16" stroke="#86c2a6"/>
-<text x="160" y="84" text-anchor="middle" font-family="monospace" font-size="16" fill="#ece6d8" font-weight="700">MOR</text><circle cx="160" cy="128" r="12" fill="#86c2a6" class="flick"/><path d="M110 70a60 60 0 0 0 0 60M210 70a60 60 0 0 1 0 60" stroke="#86c2a6" stroke-opacity=".5" fill="none" class="flick"/></svg>`,
-apotek:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#151b24"/><path d="M40 160V60l20-40 20 40v100z" fill="#0d1118"/><rect x="110" y="70" width="190" height="90" fill="#0f141c"/><rect x="200" y="40" width="70" height="26" fill="#0f141c" stroke="#86c2a6"/>
-<text x="235" y="58" text-anchor="middle" font-family="monospace" font-weight="700" font-size="11" fill="#86c2a6" letter-spacing="2">APOTEK</text><path d="M186 46h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="#86c2a6" class="flick"/><rect x="130" y="96" width="50" height="44" fill="#e7b45a" opacity=".25"/>
-<rect x="216" y="96" width="60" height="64" fill="#86c2a6" opacity=".14"/><rect y="160" width="320" height="40" fill="#0b0f15"/><circle cx="150" cy="176" r="5" fill="#ece6d8"/><path d="M145 200l5-20 5 20" fill="#ece6d8"/></svg>`,
-vaerelse:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#1a1712"/><rect x="110" y="24" width="100" height="110" fill="#cfd8e0"/><line x1="160" y1="24" x2="160" y2="134" stroke="#1a1712" stroke-width="4"/><line x1="110" y1="80" x2="210" y2="80" stroke="#1a1712" stroke-width="4"/>
-<path d="M110 134L60 200h200l-50-66z" fill="#cfd8e0" opacity=".12"/><rect x="20" y="120" width="70" height="40" fill="#2a2219"/><rect y="186" width="320" height="14" fill="#0e0c09"/><text x="160" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="#e7b45a" letter-spacing="3" class="flick">BAGERI · ÅBEN 04.00</text></svg>`
+kaffe:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#E6E9EC"/><rect x="180" y="22" width="112" height="86" rx="4" fill="#CFDCE8"/><circle cx="262" cy="50" r="12" fill="#F2F4F6"/><circle cx="248" cy="54" r="9" fill="#F2F4F6"/>
+<path d="M236 22v86M180 64h112" stroke="#E6E9EC" stroke-width="4"/><rect x="58" y="54" width="78" height="112" rx="10" fill="#4A5260"/><rect x="70" y="66" width="54" height="16" rx="4" fill="#9CC1AA"/><rect x="84" y="120" width="26" height="26" rx="3" fill="#D2786B"/>
+<path d="M92 112c-5-6 5-9 0-15M102 112c-5-6 5-9 0-15" stroke="#9AA3AF" fill="none" stroke-width="2"/><path d="M150 166c0-24 12-40 24-40" stroke="#7FA38C" stroke-width="5" fill="none"/><ellipse cx="160" cy="132" rx="12" ry="7" fill="#7FA38C"/><rect y="166" width="320" height="34" fill="#D3D8DE"/></svg>`,
+middag:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#EADFCB"/><rect x="216" y="24" width="72" height="70" rx="4" fill="#B5AACB"/><circle cx="262" cy="46" r="8" fill="#ECE8F2"/>
+<line x1="150" y1="0" x2="150" y2="40" stroke="#4A5260" stroke-width="2"/><path d="M128 40h44l-8 16h-28z" fill="#CF9E4A"/><ellipse cx="150" cy="150" rx="128" ry="26" fill="#B98F6A"/><rect x="40" y="150" width="8" height="40" fill="#8E6C50"/><rect x="252" y="150" width="8" height="40" fill="#8E6C50"/>
+<ellipse cx="96" cy="146" rx="22" ry="7" fill="#F8F9FA"/><ellipse cx="204" cy="146" rx="22" ry="7" fill="#F8F9FA"/><rect x="146" y="118" width="8" height="26" fill="#F8F9FA"/><path d="M150 106c-4 5-3 9 0 11 3-2 4-6 0-11z" fill="#CF9E4A"/>
+<circle cx="60" cy="96" r="14" fill="#6F8FAF"/><rect x="46" y="110" width="28" height="34" rx="8" fill="#6F8FAF"/><circle cx="244" cy="96" r="14" fill="#D2786B"/><rect x="230" y="110" width="28" height="34" rx="8" fill="#D2786B"/></svg>`,
+bio:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9B2D3"/><stop offset="1" stop-color="#E8C7B8"/></linearGradient></defs><rect width="320" height="200" fill="url(#dusk)"/>
+<rect x="70" y="40" width="180" height="130" fill="#6F8FAF"/><rect x="88" y="54" width="144" height="34" rx="4" fill="#F3E3C0"/><text x="160" y="77" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="700" font-size="18" fill="#4A5260" letter-spacing="6">BIOGRAF</text>
+${Array.from({length:13},(_,i)=>`<circle cx="${94+i*11}" cy="96" r="2.5" fill="#F3E3C0"/>`).join('')}<rect x="132" y="110" width="56" height="60" fill="#4A5260"/><rect x="0" y="170" width="320" height="30" fill="#8C92A2"/>
+<circle cx="40" cy="150" r="9" fill="#4A5260"/><rect x="32" y="158" width="16" height="22" rx="5" fill="#4A5260"/><circle cx="282" cy="150" r="9" fill="#7FA38C"/><rect x="274" y="158" width="16" height="22" rx="5" fill="#7FA38C"/></svg>`,
+mor:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#E2E7E2"/><rect x="34" y="96" width="150" height="54" rx="12" fill="#6F8FAF"/><rect x="34" y="78" width="150" height="30" rx="10" fill="#7E9CBA"/>
+<rect x="200" y="132" width="90" height="10" rx="3" fill="#B98F6A"/><rect x="226" y="84" width="34" height="50" rx="6" fill="#4A5260"/><rect x="230" y="90" width="26" height="36" rx="3" fill="#9CC1AA"/><text x="243" y="112" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="700" font-size="9" fill="#2F3540">MOR</text>
+<path d="M214 92a26 26 0 0 0 0 34M272 92a26 26 0 0 1 0 34" stroke="#7FA38C" stroke-width="2" fill="none"/><path d="M290 56c0-14 10-22 18-22" stroke="#7FA38C" stroke-width="4" fill="none"/><rect y="150" width="320" height="50" fill="#CDD3CF"/></svg>`,
+gade:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#DCE4EC"/>
+<g data-o="bager"><rect x="8" y="70" width="58" height="96" fill="#DDB46A"/><path d="M8 70l29-22 29 22z" fill="#B98F6A"/><rect x="20" y="118" width="34" height="48" fill="#F8F9FA"/>${iconAt("bager",25,90,24,"#4A5260")}</g>
+<g data-o="kirke"><rect x="72" y="60" width="62" height="106" fill="#F1F2F4"/><path d="M72 60l31-26 31 26z" fill="#9AA3AF"/><rect x="96" y="12" width="14" height="30" fill="#F1F2F4"/><path d="M96 12l7-12 7 12z" fill="#9AA3AF"/><path d="M95 120a8 8 0 0 1 16 0v46H95z" fill="#6F8FAF"/></g>
+<g data-o="skobutik"><rect x="140" y="76" width="58" height="90" fill="#D2786B"/><rect x="140" y="70" width="58" height="10" fill="#B9675B"/><rect x="152" y="120" width="34" height="46" fill="#F8F9FA"/>${iconAt("skobutik",157,88,24,"#F8F9FA")}</g>
+<g data-o="boghandler"><rect x="204" y="66" width="56" height="100" fill="#6F8FAF"/><path d="M204 66l28-20 28 20z" fill="#5A7896"/><rect x="216" y="118" width="32" height="48" fill="#F8F9FA"/>${iconAt("bog",220,86,24,"#F8F9FA")}</g>
+<g data-o="hus"><rect x="266" y="80" width="50" height="86" fill="#A9BFA8"/><rect x="278" y="96" width="12" height="14" fill="#F8F9FA"/><rect x="294" y="96" width="12" height="14" fill="#F8F9FA"/><rect x="283" y="130" width="16" height="36" fill="#7A917A"/></g>
+<rect y="166" width="320" height="34" fill="#BFC6CE"/><path d="M0 183h320" stroke="#F8F9FA" stroke-width="2" stroke-dasharray="14 10"/></svg>`,
+vaerelse:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#EEE9E1"/><rect x="104" y="20" width="112" height="112" rx="4" fill="#CFDCE8"/><path d="M160 20v112M104 76h112" stroke="#EEE9E1" stroke-width="5"/>
+<path d="M104 132L64 186h192l-40-54z" fill="#F7F3EA"/><rect x="18" y="122" width="74" height="40" rx="6" fill="#9C91BE"/><rect x="236" y="104" width="64" height="58" rx="4" fill="#B98F6A"/><rect y="162" width="320" height="38" fill="#D8CFC0"/>
+<rect x="112" y="150" width="96" height="16" rx="3" fill="#DDB46A"/><text x="160" y="161" text-anchor="middle" font-family="Figtree,sans-serif" font-weight="700" font-size="8" fill="#4A5260" letter-spacing="2">BAGERI · 04.00</text></svg>`
 };
+
+/* ---------- arcade (SPIL): quick rounds over all of chapter 1 ---------- */
+const V1='lave arbejde flytte studere bo spille starte passe cykle forske ringe åbne'.split(' ');
+const V1P='lavede arbejdede flyttede studerede boede spillede startede passede cyklede forskede ringede åbnede'.split(' ');
+const V2='læse købe spise besøge begynde søge undervise møde'.split(' ');
+const V2P='læste købte spiste besøgte begyndte søgte underviste mødte'.split(' ');
+const VU=[['gøre','gjorde'],['gå','gik'],['have','havde'],['komme','kom'],['få','fik'],['tage','tog'],['være','var'],['sige','sagde'],['skrive','skrev']];
+const NOUN=[['bager','en','bageren'],['slagter','en','slagteren'],['grønthandler','en','grønthandleren'],['fiskehandler','en','fiskehandleren'],['supermarked','et','supermarkedet'],['kiosk','en','kiosken'],
+ ['boghandler','en','boghandleren'],['skobutik','en','skobutikken'],['apotek','et','apoteket'],['vaskeri','et','vaskeriet'],['renseri','et','renseriet'],['kirke','en','kirken'],['park','en','parken'],
+ ['skole','en','skolen'],['gymnasium','et','gymnasiet'],['bibliotek','et','biblioteket'],['rådhus','et','rådhuset'],['posthus','et','posthuset'],['station','en','stationen'],['svømmehal','en','svømmehallen'],
+ ['teater','et','teatret'],['museum','et','museet'],['biograf','en','biografen'],['hotel','et','hotellet'],['restaurant','en','restauranten'],['café','en','caféen'],['bank','en','banken'],['torv','et','torvet'],['hospital','et','hospitalet'],['legeplads','en','legepladsen']];
+const PLACE=[['Stefansgade','i','-gade takes i'],['Klosterstræde','i','-stræde takes i'],['Roskildevej','på','-vej takes på'],['Pile Allé','på','allé takes på'],['Højbro Plads','på','plads takes på'],['Store Torv','på','torv takes på'],
+ ['Nørrebrogade','på','a big, long gade takes på'],['Valby','i','most towns and districts take i'],['Odense','i','towns take i'],['Nørrebro','på','some districts take på'],['Vesterbro','på','some districts take på'],['Frederiksberg','på','some districts take på'],
+ ['Fyn','på','islands take på'],['Kolding','i','towns take i'],['Blågårdsgade','i','-gade takes i'],['Jagtvej','på','-vej takes på'],['Danmark','i','countries take i'],['Islands Brygge','på','some districts take på']];
+const MM=[['biler',0],['butikker',0],['caféer',0],['mennesker',0],['barer',0],['grønne områder',0],['turister',0],['trafik',1],['larm',1],['lys',1],['luft',1],['liv',1],['kaffe',1],['regn',1]];
+const SA=['Ja, det er jeg.','Ja, det gør jeg.','Ja, det er der.','Ja, det har jeg.'];
+const SAQ=[['Er du glad for at bo her?',0],['Er du ny her?',0],['Er du træt af trafikken?',0],['Bor du på Vesterbro?',1],['Kender du den?',1],['Arbejder du her?',1],['Savner du din familie?',1],
+ ['Er der en bager i nærheden?',2],['Er der mange butikker?',2],['Er der et apotek her?',2],['Har du en cykel?',3],['Har du været i Aarhus?',3],['Har du et job?',3]];
+const TL=[['for et halvt år siden',-6],['for et år siden',-12],['for halvandet år siden',-18],['for to år siden',-24],['om et halvt år',6],['om et år',12],['om halvandet år',18],['om to år',24]];
+const GAMES=[
+ {id:'datid',name:'Datid',sub:'-ede, -te or irregular?',col:'var(--blue)',type:'bins',bins:['-ede','-te','irregular'],rule:'R6',
+  next(){const r=Math.random();if(r<.4){const k=Math.floor(Math.random()*V1.length);return{w:V1[k],a:0,show:V1[k]+' → '+V1P[k]}}if(r<.75){const k=Math.floor(Math.random()*V2.length);return{w:V2[k],a:1,show:V2[k]+' → '+V2P[k]}}const v=VU[Math.floor(Math.random()*VU.length)];return{w:v[0],a:2,show:v[0]+' → '+v[1]}}},
+ {id:'enet',name:'En eller et',sub:'Places from the neighbourhood',col:'var(--sage)',type:'bins',bins:['en','et'],rule:'R12',
+  next(){const n=NOUN[Math.floor(Math.random()*NOUN.length)];return{w:n[0],a:n[1]==='en'?0:1,show:`${n[1]} ${n[0]} → ${n[2]}`}}},
+ {id:'ipaa',name:'I eller på',sub:'Streets, districts, towns',col:'var(--ochre)',type:'bins',bins:['i','på'],rule:'R11',
+  next(){const p=PLACE[Math.floor(Math.random()*PLACE.length)];return{w:'___ '+p[0],a:p[1]==='i'?0:1,show:`${p[1]} ${p[0]} · ${p[2]}`}}},
+ {id:'mm',name:'Mange eller meget',sub:'Can you count it?',col:'var(--lilac)',type:'bins',bins:['mange','meget'],rule:'R16',
+  next(){const m=MM[Math.floor(Math.random()*MM.length)];return{w:'___ '+m[0],a:m[1],show:`${['mange','meget'][m[1]]} ${m[0]}`}}},
+ {id:'svar',name:'Kort svar',sub:'Answer fast',col:'var(--coral)',type:'bins',bins:SA,vertical:true,rule:'R14',
+  next(){const q=SAQ[Math.floor(Math.random()*SAQ.length)];return{w:q[0],a:q[1],show:q[0]+' '+SA[q[1]],say:true}}},
+ {id:'tid',name:'Tidslinjen',sub:'Ago or from now?',col:'var(--blue)',type:'line',rule:'R7',
+  next(){const t=TL[Math.floor(Math.random()*TL.length)];return{w:t[0],a:t[1],show:t[0],say:true}}}
+];
+
 /* ---------- sound ---------- */
-let AC=null,amb=null;
-function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
-function tone(f,d,type='sine',v=.15,w=0){const a=ac();if(!a)return;const t=a.currentTime+w,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
-function rainOn(){const a=ac();if(!a||amb)return;const b=a.createBuffer(1,a.sampleRate*2,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
-  const s=a.createBufferSource();s.buffer=b;s.loop=true;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=900;const g=a.createGain();g.gain.value=.035;s.connect(f);f.connect(g);g.connect(a.destination);s.start();amb=s}
-function rainOff(){if(amb){try{amb.stop()}catch(e){}amb=null}}
-const SFX={ok(){tone(660,.2,'triangle',.1);tone(990,.35,'triangle',.08,.08)},no(){tone(150,.3,'sawtooth',.08)},
-  knock(){[0,.22,.44].forEach(w=>tone(90,.18,'sine',.5,w))},ring(){for(let k=0;k<4;k++){tone(1400,.08,'square',.04,k*.25);tone(1700,.08,'square',.04,k*.25+.09)}},open(){tone(220,.15,'square',.06);tone(330,.3,'triangle',.08,.1)}};
+let AC=null;function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',v=.12,w=0){const a=ac();if(!a)return;const t=a.currentTime+w,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
+const SFX={ok(){tone(587,.18,'triangle');tone(880,.3,'triangle',.09,.07)},no(){tone(196,.25,'sine',.14)},combo(n){tone(523+n*40,.15,'triangle',.08)},end(){[523,659,784].forEach((f,i)=>tone(f,.5,'triangle',.08,i*.1))}};
 
 /* ---------- voice ---------- */
 let VO=[];function loadV(){try{VO=(speechSynthesis.getVoices()||[]).filter(v=>/^da([-_]|$)/i.test(v.lang))}catch(e){VO=[]}}
 if('speechSynthesis' in window){loadV();try{speechSynthesis.onvoiceschanged=loadV}catch(e){}}
-function speak(t,p={}){return new Promise(res=>{if(!('speechSynthesis' in window)||!VO.length){setTimeout(res,200);return}let done=false;const f=()=>{if(!done){done=true;res()}};
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='da-DK';const n=store.get('voice',null);u.voice=VO.find(v=>v.name===n)||VO[0];u.pitch=p.pitch||1;u.rate=p.rate||.95;u.onend=f;u.onerror=f;speechSynthesis.speak(u)}catch(e){f()}setTimeout(f,1500+t.length*90)})}
+function speak(t,p={}){return new Promise(res=>{if(!('speechSynthesis' in window)||!VO.length){setTimeout(res,150);return}let done=false;const f=()=>{if(!done){done=true;res()}};
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='da-DK';const n=store.get('voice',null);u.voice=VO.find(v=>v.name===n)||VO[0];u.pitch=p.p||1;u.rate=p.r||.95;u.onend=f;u.onerror=f;speechSynthesis.speak(u)}catch(e){f()}setTimeout(f,1500+t.length*90)})}
+const hush=()=>{try{speechSynthesis.cancel()}catch(e){}};
 
-/* ---------- engine ---------- */
-const st={sc:null,i:0,done:store.get('done',{}),miss:store.get('miss',{}),showEN:store.get('en',false),review:null,lastWrong:null,first:0,total:0};
-const lines=$('#lines'),act=$('#act');
-const ALL=SCENES.flatMap(sc=>sc.beats.filter(b=>b.p));
-function save(){store.set('done',st.done);store.set('miss',st.miss)}
-function prog(){$('#prog').style.width=st.sc?Math.round(100*st.i/st.sc.beats.length)+'%':'0%'}
-function addLine(sp,da,en,cls=''){const S0=S[sp]||S.narr;const d=document.createElement('div');d.className='ln '+(sp==='narr'?'narr ':'')+cls;
-  d.innerHTML=`${S0.who?`<div class="who ${S0.cls}">${S0.who}</div>`:''}<div class="da">${esc(da)}</div><div class="en" ${st.showEN?'':'hidden'}>${esc(en||'')}</div>`;
-  d.onclick=()=>{const e=d.querySelector('.en');e.hidden=!e.hidden;speak(da,S0)};lines.appendChild(d);d.scrollIntoView({block:'end',behavior:'smooth'});return d}
-function menu(){st.sc=null;st.review=null;prog();$('#ep').textContent='CHAPTER 1 · SCENES';$('#still').hidden=true;
-  const missN=Object.values(st.miss).reduce((a,b)=>a+b,0);
-  lines.innerHTML=`<div class="end" style="padding-block:4px"><h2>Små scener.</h2><div class="k">Short situations from chapter 1, each with a surprise. Tap a line to hear it again and see the English.</div></div>`+
-   SCENES.map((sc,k)=>`<button class="scard" type="button" data-k="${k}"><span class="sn">${k+1}</span><span><b>${esc(sc.title)}</b><small>${esc(sc.sec)}</small></span><span class="sd">${st.done[sc.id]?'✓':''}</span></button>`).join('');
-  lines.querySelectorAll('.scard').forEach(b=>b.onclick=()=>{ac();play(SCENES[+b.dataset.k])});
-  const doneN=Object.keys(st.done).length;
-  act.innerHTML=doneN?`<button class="btn main" type="button" id="rv">REPEAT · 10 QUICK ROUNDS${missN?' · MISSES FIRST':''}</button>`:`<div class="k" style="font:12px var(--f-ui);color:var(--dim);text-align:center">Finish a scene to unlock the repeat round.</div>`;
-  if(doneN)$('#rv').onclick=()=>{ac();review()}}
-function play(sc){if(sc.art==='bio')rainOn();else rainOff();st.sc=sc;st.i=0;st.first=0;st.total=0;$('#still').hidden=false;$('#ep').textContent=sc.sec.toUpperCase();
-  $('#still').innerHTML=ART[sc.art]+`<div class="place">${esc(sc.place)}</div>`;lines.innerHTML='';go()}
-function go(){prog();const b=st.sc.beats[st.i];if(!b)return sceneEnd();
-  if(b.da){addLine(b.s,b.da,b.en);speak(b.da,S[b.s]);act.innerHTML='<button class="tapnext" type="button" id="nx">TAP TO CONTINUE</button>';$('#nx').onclick=next;return}
+/* ---------- drag or tap-to-place ---------- */
+function draggable(el,onDrop){el.addEventListener('pointerdown',e=>{e.preventDefault();const sx=e.clientX,sy=e.clientY;let ghost=null;
+  const mv=ev=>{if(!ghost&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>8){ghost=el.cloneNode(true);ghost.classList.add('drag');document.body.appendChild(ghost)}
+    if(ghost){ghost.style.left=ev.clientX+'px';ghost.style.top=ev.clientY+'px';document.querySelectorAll('[data-drop]').forEach(d=>d.classList.remove('drop'));const t=dropAt(ev);if(t)t.classList.add('drop')}};
+  const up=ev=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);document.querySelectorAll('[data-drop]').forEach(d=>d.classList.remove('drop'));
+    if(ghost){ghost.remove();const t=dropAt(ev);if(t)onDrop(t)}else el.dispatchEvent(new CustomEvent('tapsel'))};
+  document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)})}
+function dropAt(ev){const el=document.elementFromPoint(ev.clientX,ev.clientY);return el&&el.closest?el.closest('[data-drop]'):null}
+
+/* ---------- state ---------- */
+const st={sc:null,i:0,stars:store.get('stars',{}),miss:store.get('miss',{}),best:store.get('best',{}),en:store.get('en',false),review:null,lw:null,first:0,total:0,tab:store.get('tab','scener')};
+const save=()=>{store.set('stars',st.stars);store.set('miss',st.miss);store.set('best',st.best)};
+const view=$('#view');let lines,act,still;
+function prog(f){$('#prog').style.width=Math.round(100*(f||0))+'%'}
+function setTitle(t){$('#ttl').textContent=t}
+
+/* ---------- home ---------- */
+function home(){hush();st.sc=null;st.review=null;prog(0);setTitle('SMÅ SCENER');
+  const missN=Object.keys(st.miss).length;
+  view.innerHTML=`<div class="home"><div><h1>Små scener</h1><p>Chapter 1 in short situations, each with a surprise. Tap any line to hear it again${st.en?'':' and see the English'}.</p></div>
+   <div class="tabs"><button class="tab ${st.tab==='scener'?'on':''}" data-t="scener" type="button">SCENES</button><button class="tab ${st.tab==='spil'?'on':''}" data-t="spil" type="button">QUICK GAMES</button></div>
+   <div id="list" style="display:grid;gap:10px"></div>
+   ${missN?`<button class="btn main" type="button" id="rv">REPEAT YOUR MISSES (${missN})</button>`:''}</div>`;
+  const L=$('#list');
+  if(st.tab==='scener')L.innerHTML=SCENES.map((sc,k)=>{const s=st.stars[sc.id]||0;return `<button class="sc" type="button" data-k="${k}"><span class="ic" style="background:${sc.col}">${k+1}</span><span><b>${esc(sc.title)}</b><small>${esc(sc.sec)}</small></span><span class="stars">${[1,2,3].map(n=>`<span class="${n<=s?'':'off'}">★</span>`).join('')}</span></button>`}).join('');
+  else L.innerHTML=GAMES.map((g,k)=>`<button class="sc" type="button" data-g="${k}"><span class="ic" style="background:${g.col}">${esc(g.name[0])}</span><span><b>${esc(g.name)}</b><small>${esc(g.sub)} · 45 seconds</small></span><span class="best">${st.best[g.id]!=null?'BEST '+st.best[g.id]:''}</span></button>`).join('');
+  view.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{st.tab=t.dataset.t;store.set('tab',st.tab);home()});
+  L.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{ac();play(SCENES[+b.dataset.k])});
+  L.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ac();arcade(GAMES[+b.dataset.g])});
+  const rv=$('#rv');if(rv)rv.onclick=()=>{ac();review()}}
+
+/* ---------- scene player ---------- */
+function frame(sc){view.innerHTML=`<div class="still" id="still">${sc?ART[sc.art]+`<div class="place">${esc(sc.place)}</div>`:''}</div><div class="lines" id="lines"></div><div class="act" id="act"></div>`;
+  lines=$('#lines');act=$('#act');still=$('#still');if(!sc)still.hidden=true}
+function play(sc){st.sc=sc;st.i=0;st.first=0;st.total=0;setTitle(sc.title.toUpperCase());frame(sc);go()}
+function addLine(sp,da,en,cls=''){const S=SP[sp]||SP.narr;const d=document.createElement('div');d.className='ln'+(sp==='narr'?' narr':'')+(S.me?' me':'')+' '+cls;
+  d.innerHTML=`${S.who?`<div class="who ${S.c}">${S.who}</div>`:''}<div class="da">${esc(da)}</div><div class="en" ${st.en?'':'hidden'}>${esc(en||'')}</div>`;
+  d.onclick=()=>{const e=d.querySelector('.en');e.hidden=!e.hidden;speak(da,S)};lines.appendChild(d);d.scrollIntoView({block:'end',behavior:'smooth'})}
+function go(){const B=st.sc.beats;prog(st.i/B.length);const b=B[st.i];if(!b)return sceneEnd();
+  if(still)still.classList.remove('mini');
+  if(b.da){addLine(b.s,b.da,b.en);speak(b.da,SP[b.s]);act.innerHTML='<button class="next" type="button" id="nx">TAP TO CONTINUE</button>';$('#nx').onclick=()=>{st.i++;go()};return}
   puzzle(b)}
-function next(){st.i++;go()}
-function miss(b){st.miss[b.id]=(st.miss[b.id]||0)+1;save()}
-function whyBox(b){return `<div class="why"><b>${b.rule} · ${esc(R[b.rule])}.</b> ${esc(b.why)}</div>`}
-function solved(b,text){SFX.ok();st.total++;if(st.lastWrong!==b.id)st.first++;
-  if(st.lastWrong!==b.id&&st.miss[b.id]&&st.review){st.miss[b.id]--;if(!st.miss[b.id])delete st.miss[b.id];save()}
-  if(text){const sp=b.s||'narr';addLine(sp,text,b.en,'solved');speak(text,S[sp])}
-  act.innerHTML=`${st.lastWrong===b.id?whyBox(b):''}<button class="tapnext" type="button" id="nx">TAP TO CONTINUE</button>`;
-  $('#nx').onclick=()=>{st.lastWrong=null;if(st.review)return reviewNext();next()}}
-function puzzle(b){
-  if(b.p==='choose'||b.p==='listen'){
-    const order=shuffle(b.opts.map((o,k)=>k));
-    const gl=b.p==='listen'||b.line==='___'?'':`<div class="gapline">${esc(b.line).replace('___','<span class="gap">?</span>')}</div>`;
-    act.innerHTML=`<div class="q">${esc(b.q||'')}</div>${b.p==='listen'?'<button class="replay" type="button" id="rp">▶ PLAY AGAIN</button>':''}${gl}<div class="opts">${order.map(k=>`<button class="opt" type="button" data-k="${k}">${esc(b.opts[k])}</button>`).join('')}</div><div id="w"></div>`;
-    if(b.p==='listen'){const pl=()=>speak(b.say,S[b.s]||S.narr);pl();$('#rp').onclick=pl}
-    act.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const k=+o.dataset.k;
-      if(k===b.ok){o.classList.add('right');const full=b.p==='listen'?b.say:(b.line==='___'?b.opts[k]:b.line.replace('___',b.opts[k]));setTimeout(()=>solved(b,full),300)}
-      else{SFX.no();o.disabled=true;act.classList.remove('shake');void act.offsetWidth;act.classList.add('shake');if(st.lastWrong!==b.id){miss(b);st.lastWrong=b.id}$('#w').innerHTML=whyBox(b)}});
-    return}
-  if(b.p==='order'){
-    const pcs=shuffle(b.pieces.map((p,k)=>k));let built=[];
-    const draw=()=>{act.innerHTML=`<div class="q">${esc(b.q)}</div>${b.prefix?`<div class="gapline" style="color:var(--dim)">${esc(b.prefix)} …</div>`:''}<div class="built" id="bt">${built.map((k,j)=>`<button class="pc" type="button" data-j="${j}">${esc(b.pieces[k])}</button>`).join('')}</div>
-      <div class="pieces">${pcs.map(k=>`<button class="pc ${built.includes(k)?'used':''}" type="button" data-k="${k}">${esc(b.pieces[k])}</button>`).join('')}</div><div id="w"></div>`;
-      act.querySelectorAll('.pieces .pc').forEach(p=>p.onclick=()=>{built.push(+p.dataset.k);draw();check()});
-      act.querySelectorAll('#bt .pc').forEach(p=>p.onclick=()=>{built.splice(+p.dataset.j,1);draw()})};
-    const check=()=>{if(built.length<b.pieces.length)return;const words=built.map(k=>b.pieces[k].toLowerCase()).join(' ');
-      const hit=b.answers.find(a=>a[1].map(x=>x.toLowerCase()).join(' ')===words);
-      if(hit)return setTimeout(()=>solved(b,hit[0]),250);
-      SFX.no();if(st.lastWrong!==b.id){miss(b);st.lastWrong=b.id}built=[];draw();$('#w').innerHTML=whyBox(b);act.classList.remove('shake');void act.offsetWidth;act.classList.add('shake')};
-    draw();return}
-}
-function sceneEnd(){prog();const sc=st.sc;st.done[sc.id]=true;save();
-  const rules=[...new Set(sc.beats.filter(b=>b.rule).map(b=>b.rule))];const missed=sc.beats.filter(b=>b.p&&st.miss[b.id]);
-  const d=document.createElement('div');d.className='end';d.innerHTML=`<div class="k">END OF SCENE · ${st.first} OF ${st.total} RIGHT AT FIRST TRY</div>
-   <div class="k">${rules.map(r=>`${r} · ${esc(R[r])}`).join('<br>')}</div>`;lines.appendChild(d);d.scrollIntoView({block:'end'});
+const whyBox=b=>`<div class="why"><b>${b.rule} · ${esc(R[b.rule])}.</b> ${esc(b.why)}</div>`;
+function wrong(b){SFX.no();act.classList.remove('shake');void act.offsetWidth;act.classList.add('shake');if(st.lw!==b.id){st.miss[b.id]=(st.miss[b.id]||0)+1;st.lw=b.id;save()}const w=$('#w');if(w)w.innerHTML=whyBox(b)}
+function solved(b,text){SFX.ok();st.total++;const clean=st.lw!==b.id;if(clean)st.first++;
+  if(clean&&st.review&&st.miss[b.id]){delete st.miss[b.id];save()}
+  if(text){addLine(b.s||'narr',text,b.en,'solved');speak(text,SP[b.s||'narr'])}
+  act.innerHTML=`${clean?'':whyBox(b)}<button class="next" type="button" id="nx">TAP TO CONTINUE</button>`;
+  $('#nx').onclick=()=>{st.lw=null;if(st.review)return reviewNext();st.i++;go()}}
+function puzzle(b){act.classList.remove('shake');if(still)still.classList.toggle('mini',['map','timeline','clock','sort','order'].includes(b.p));
+  ({choose:pChoose,listen:pChoose,order:pOrder,sort:pSort,map:pMap,timeline:pTimeline,clock:pClock,hunt:pHunt})[b.p](b)}
+function pChoose(b){const order=shuffle(b.opts.map((o,k)=>k));
+  const gl=b.p==='listen'||b.line==='___'?'':`<div class="gl">${esc(b.line).replace('___','<span class="gap">?</span>')}</div>`;
+  act.innerHTML=`<div class="q">${esc(b.q||'')}</div>${b.p==='listen'?'<button class="replay" type="button" id="rp">▶ PLAY AGAIN</button>':''}${gl}<div class="opts">${order.map(k=>`<button class="opt" type="button" data-k="${k}">${esc(b.opts[k])}</button>`).join('')}</div><div id="w"></div>`;
+  if(b.p==='listen'){const pl=()=>speak(b.say,SP[b.s]||SP.narr);pl();$('#rp').onclick=pl}
+  act.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const k=+o.dataset.k;
+    if(k===b.ok){o.classList.add('right');setTimeout(()=>solved(b,b.p==='listen'?b.say:(b.line==='___'?b.opts[k]:b.line.replace('___',b.opts[k]))),300)}
+    else{o.disabled=true;wrong(b)}})}
+function pOrder(b){const pcs=shuffle(b.pieces.map((p,k)=>k));let built=[];
+  const draw=()=>{act.innerHTML=`<div class="q">${esc(b.q)}</div>${b.prefix?`<div class="gl" style="color:var(--dim)">${esc(b.prefix)} …</div>`:''}<div class="built" id="bt">${built.map((k,j)=>`<button class="pc" type="button" data-j="${j}">${esc(b.pieces[k])}</button>`).join('')}</div>
+    <div class="pieces">${pcs.map(k=>`<button class="pc ${built.includes(k)?'used':''}" type="button" data-k="${k}">${esc(b.pieces[k])}</button>`).join('')}</div><div id="w"></div>`;
+    act.querySelectorAll('.pieces .pc').forEach(p=>p.onclick=()=>{built.push(+p.dataset.k);draw();check()});
+    act.querySelectorAll('#bt .pc').forEach(p=>p.onclick=()=>{built.splice(+p.dataset.j,1);draw()})};
+  const check=()=>{if(built.length<b.pieces.length)return;const w=built.map(k=>b.pieces[k].toLowerCase()).join(' ');
+    const hit=b.answers.find(a=>a[1].map(x=>x.toLowerCase()).join(' ')===w);if(hit)return setTimeout(()=>solved(b,hit[0]),250);
+    built=[];draw();wrong(b)};draw()}
+function pSort(b){const items=shuffle(b.items);let k=0;const n=b.bins.length;
+  const draw=()=>{const it=items[k];act.innerHTML=`<div class="q">${esc(b.q)} <span class="k">${k+1}/${items.length}</span></div><div class="card" id="cd">${esc(it[0])}</div>
+    <div class="bins" style="--n:${n}">${b.bins.map((x,j)=>`<button class="bin b${j}" type="button" data-drop="${j}" data-j="${j}">${esc(x)}</button>`).join('')}</div><div id="w"></div>`;
+    speak(it[0]);const pick=j=>{if(j===it[1]){SFX.ok();const bn=act.querySelector(`.bin[data-j="${j}"]`);bn.classList.add('flash');k++;if(k>=items.length)return setTimeout(()=>solved(b,null),300);setTimeout(draw,250)}else wrong(b)};
+    act.querySelectorAll('.bin').forEach(x=>x.onclick=()=>pick(+x.dataset.j));draggable($('#cd'),t=>pick(+t.dataset.j))};draw()}
+function pMap(b){const place={};let sel=null;
+  const cell=(c,r)=>{for(const [nm,v] of Object.entries(b.fixed))if(v[0]===c&&v[1]===r)return `<div class="lot fix">${ICON[v[2]]}${esc(nm)}</div>`;
+    const it=Object.keys(place).find(x=>place[x][0]===c&&place[x][1]===r);const item=b.items.find(x=>x[0]===it);
+    return `<div class="lot" data-drop="${c},${r}" data-c="${c}" data-r="${r}">${item?ICON[item[1]]+esc(item[0]):''}</div>`};
+  const draw=()=>{act.innerHTML=`<div class="q">${esc(b.q)}</div><div class="clues">${b.clues.map(c=>`<button type="button" data-say="${esc(c[3])}">▶ ${esc(c[3])}</button>`).join('')}</div>
+    <div class="map">${[0,1,2].map(c=>cell(c,0)).join('')}<div class="street">${esc(b.street)}</div>${[0,1,2].map(c=>cell(c,1)).join('')}</div>
+    <div class="chips">${b.items.filter(x=>!place[x[0]]).map(x=>`<div class="chip ${sel===x[0]?'sel':''}" data-it="${esc(x[0])}">${ICON[x[1]]}${esc(x[0])}</div>`).join('')}</div>
+    ${Object.keys(place).length===b.items.length?'<button class="btn main" type="button" id="ck">CHECK</button>':''}<div id="w"></div>`;
+    act.querySelectorAll('[data-say]').forEach(x=>x.onclick=()=>speak(x.dataset.say));
+    act.querySelectorAll('.chip').forEach(ch=>{const nm=ch.dataset.it;draggable(ch,t=>{place[nm]=[+t.dataset.c,+t.dataset.r];sel=null;draw()});ch.addEventListener('tapsel',()=>{sel=nm;draw()})});
+    act.querySelectorAll('.lot[data-c]').forEach(l=>l.onclick=()=>{const c=+l.dataset.c,r=+l.dataset.r;const here=Object.keys(place).find(x=>place[x][0]===c&&place[x][1]===r);
+      if(sel){if(here)delete place[here];place[sel]=[c,r];sel=null}else if(here)delete place[here];draw()});
+    const ck=$('#ck');if(ck)ck.onclick=()=>{const pos=x=>place[x]||b.fixed[x];
+      const ok=b.clues.every(([a,rel,z])=>{const p=pos(a),q=pos(z);return rel==='overfor'?(p[0]===q[0]&&p[1]!==q[1]):(p[1]===q[1]&&Math.abs(p[0]-q[0])===1)});
+      if(ok)return solved(b,null);for(const k of Object.keys(place))delete place[k];draw();wrong(b)}};draw()}
+function pTimeline(b){const place={};let sel=null;const ticks=[-24,-18,-12,-6,0,6,12,18,24];const x=v=>6+88*(v+24)/48;
+  const draw=()=>{act.innerHTML=`<div class="q">${esc(b.q)}</div><div class="tl"><div class="axis"></div>
+    ${ticks.map(t=>`<div class="tk ${t===0?'now':''}" style="left:${x(t)}%" data-drop="${t}" data-t="${t}"><i></i></div>`).join('')}
+    ${[-24,-12,0,12,24].map(t=>`<div class="lb" style="left:${x(t)}%">${t===0?'NU':(t<0?'−':'+')+Math.abs(t/12)+' år'}</div>`).join('')}
+    ${Object.entries(place).map(([nm,t])=>`<div class="pin" style="left:${x(t)}%">${esc(nm)}</div>`).join('')}</div>
+    <div class="chips">${b.items.filter(i=>place[i[0]]==null).map(i=>`<div class="chip ${sel===i[0]?'sel':''}" data-it="${esc(i[0])}">${esc(i[0])}</div>`).join('')}</div>
+    ${Object.keys(place).length===b.items.length?'<button class="btn main" type="button" id="ck">CHECK</button>':''}<div id="w"></div>`;
+    act.querySelectorAll('.chip').forEach(ch=>{const nm=ch.dataset.it;draggable(ch,t=>{place[nm]=+t.dataset.t;sel=null;draw()});ch.addEventListener('tapsel',()=>{sel=nm;draw()})});
+    act.querySelectorAll('.tk').forEach(tk=>tk.onclick=()=>{if(sel){place[sel]=+tk.dataset.t;sel=null;draw()}});
+    const ck=$('#ck');if(ck)ck.onclick=()=>{if(b.items.every(i=>place[i[0]]===i[1]))return solved(b,null);for(const k of Object.keys(place))delete place[k];draw();wrong(b)}};draw()}
+function pClock(b){act.innerHTML=`<div class="q">${esc(b.q)}</div><div class="clock">${Array.from({length:12},(_,i)=>{const h=i+1,a=(h/12)*2*Math.PI;return `<button type="button" data-h="${h}" style="left:${50+40*Math.sin(a)}%;top:${50-40*Math.cos(a)}%">${h}</button>`}).join('')}<div class="mid">NU ${b.now+12}:00</div></div><div id="w"></div>`;
+  act.querySelectorAll('.clock button').forEach(x=>x.onclick=()=>{if(+x.dataset.h===b.ok){x.classList.add('right');setTimeout(()=>solved(b,null),300)}else wrong(b)})}
+function pHunt(b){const tg=b.targets.slice();still.classList.add('hunt');
+  const ask=()=>{const t=tg[0];if(!t){still.classList.remove('hunt');still.querySelectorAll('[data-o]').forEach(g=>g.onclick=null);return solved(b,null)}
+    const [def]=HUNT[t];act.innerHTML=`<div class="q">${esc(b.q)}</div><button class="replay" type="button" id="rp">▶ ${b.targets.length-tg.length+1}/${b.targets.length} · PLAY AGAIN</button><div id="w"></div>`;
+    const pl=()=>speak(def);pl();$('#rp').onclick=pl};
+  still.querySelectorAll('[data-o]').forEach(g=>g.onclick=()=>{const o=g.dataset.o;if(!tg.length)return;
+    if(o===tg[0]){g.classList.remove('hit');void g.getBBox();g.classList.add('hit');SFX.ok();tg.shift();setTimeout(ask,450)}
+    else{speak('Det er '+HUNT[o][0]+'.');wrong(b);$('#w').innerHTML=`<div class="why">That is <b style="color:var(--ink)">${esc(HUNT[o][0])}</b> (${esc(HUNT[o][1])}). Listen again.</div>`}});
+  ask()}
+function sceneEnd(){prog(1);const sc=st.sc;const ratio=st.total?st.first/st.total:1;const s=ratio>=.9?3:ratio>=.7?2:1;st.stars[sc.id]=Math.max(st.stars[sc.id]||0,s);save();
+  const rules=[...new Set(sc.beats.filter(b=>b.rule).map(b=>b.rule))];const missed=sc.beats.filter(b=>b.p&&st.miss[b.id]&&b.p!=='hunt');
+  const d=document.createElement('div');d.className='end';d.innerHTML=`<div class="stars" style="font-size:26px">${[1,2,3].map(n=>`<span class="${n<=s?'':'off'}">★</span>`).join('')}</div>
+   <div class="k">${st.first} of ${st.total} right at the first try</div><div class="k">${rules.map(r=>`${r} · ${esc(R[r])}`).join('<br>')}</div>`;lines.appendChild(d);d.scrollIntoView({block:'end'});
   act.innerHTML=`${missed.length?`<button class="btn main" type="button" id="ek">AGAIN NOW: YOUR ${missed.length} MISS${missed.length>1?'ES':''}</button>`:''}<button class="btn ${missed.length?'':'main'}" type="button" id="mn">NEXT SCENE</button>`;
-  if(missed.length)$('#ek').onclick=()=>{st.review=shuffle(missed);lines.innerHTML='';reviewNext()};
-  $('#mn').onclick=()=>{const k=SCENES.indexOf(sc);if(k<SCENES.length-1)play(SCENES[k+1]);else menu()}}
-function review(){const done=ALL.filter(b=>st.done[b.scene]);const missed=shuffle(done.filter(b=>st.miss[b.id]));const rest=shuffle(done.filter(b=>!st.miss[b.id]));
-  st.review=[...missed,...rest].slice(0,10);st.first=0;st.total=0;st.sc=null;$('#still').hidden=true;$('#ep').textContent='REPEAT';lines.innerHTML='';reviewNext()}
-function reviewNext(){const b=st.review.shift();
-  if(!b){const d=document.createElement('div');d.className='end';d.innerHTML=`<h2>${st.first} / ${st.total}</h2><div class="k">right at first try. Misses come back first next time.</div>`;lines.appendChild(d);
-    const cur=st.sc;st.review=null;const k=cur?SCENES.indexOf(cur):-1;act.innerHTML=`<button class="btn main" type="button" id="mn">${k>=0&&k<SCENES.length-1?'NEXT SCENE':'SCENES'}</button>`;$('#mn').onclick=()=>{if(k>=0&&k<SCENES.length-1)play(SCENES[k+1]);else menu()};return}
-  if(b.p!=='listen'&&b.line&&b.line!=='___'){}lines.innerHTML='';const sc=SCENES.find(s=>s.id===b.scene);
-  const ctx=sc.beats[sc.beats.indexOf(b)-1];if(ctx&&ctx.da)addLine(ctx.s,ctx.da,ctx.en);st.lastWrong=null;puzzle(b)}
+  if(missed.length)$('#ek').onclick=()=>{st.review=shuffle(missed);st.first=0;st.total=0;lines.innerHTML='';reviewNext()};
+  $('#mn').onclick=()=>nextScene(sc)}
+function nextScene(sc){const k=SCENES.indexOf(sc);if(sc&&k<SCENES.length-1)play(SCENES[k+1]);else home()}
+function review(){const all=SCENES.flatMap(s=>s.beats.filter(b=>b.p&&b.p!=='hunt'&&st.miss[b.id]));st.review=shuffle(all).slice(0,10);st.first=0;st.total=0;st.sc=null;setTitle('REPEAT');frame(null);reviewNext()}
+function reviewNext(){prog(0);const b=st.review.shift();
+  if(!b){const cur=st.sc;st.review=null;const d=document.createElement('div');d.className='end';d.innerHTML=`<h2>${st.first} / ${st.total}</h2><div class="k">right at the first try</div>`;lines.innerHTML='';lines.appendChild(d);
+    act.innerHTML=`<button class="btn main" type="button" id="mn">${cur&&SCENES.indexOf(cur)<SCENES.length-1?'NEXT SCENE':'HOME'}</button>`;$('#mn').onclick=()=>nextScene(cur);return}
+  lines.innerHTML='';const sc=SCENES.find(s=>s.id===b.scene);const ctx=sc.beats[sc.beats.indexOf(b)-1];if(ctx&&ctx.da)addLine(ctx.s,ctx.da,ctx.en);st.lw=null;puzzle(b)}
+
+/* ---------- arcade ---------- */
+let AR=null;
+function arcade(g){hush();st.sc=null;setTitle(g.name.toUpperCase());prog(0);
+  view.innerHTML=`<div class="hud"><span id="sc">0</span><span class="combo" id="cb"></span><span id="tm">45</span></div><div class="timer"><i id="ti" style="width:100%"></i></div>
+   <div class="arena" id="ar"></div><div class="fb" id="fb"></div><div class="act" id="act"></div>`;
+  AR={g,score:0,streak:0,t0:performance.now(),dur:45000,miss:[],cur:null,over:false,lock:false};
+  const tick=()=>{if(!AR||AR.g!==g||AR.over)return;const left=Math.max(0,AR.dur-(performance.now()-AR.t0));$('#tm').textContent=Math.ceil(left/1000);$('#ti').style.width=(100*left/AR.dur)+'%';
+    if(left<=0)return arcadeEnd();requestAnimationFrame(tick)};requestAnimationFrame(tick);nextItem()}
+function nextItem(){const g=AR.g;let it=g.next();if(AR.cur&&it.w===AR.cur.w)it=g.next();AR.cur=it;AR.lock=false;const ar=$('#ar'),A=$('#act');
+  if(g.type==='bins'){ar.innerHTML=`<div class="card" id="cd">${esc(it.w)}</div>`;
+    A.innerHTML=`<div class="bins" style="--n:${g.vertical?1:g.bins.length}">${g.bins.map((x,j)=>`<button class="bin b${j%4}" type="button" data-drop="${j}" data-j="${j}">${esc(x)}</button>`).join('')}</div>`;
+    A.querySelectorAll('.bin').forEach(x=>x.onclick=()=>answer(+x.dataset.j));draggable($('#cd'),t=>answer(+t.dataset.j));if(it.say)speak(it.w)}
+  else{const ticks=[-24,-18,-12,-6,6,12,18,24],x=v=>6+88*(v+24)/48;ar.innerHTML=`<div class="card">${esc(it.w)}</div>`;
+    A.innerHTML=`<div class="tl"><div class="axis"></div>${ticks.map(t=>`<button type="button" class="tk" style="left:${x(t)}%" data-t="${t}"><i></i></button>`).join('')}<div class="tk now" style="left:${x(0)}%"><i></i></div>
+      ${[-24,-12,0,12,24].map(t=>`<div class="lb" style="left:${x(t)}%">${t===0?'NU':(t<0?'−':'+')+Math.abs(t/12)+' år'}</div>`).join('')}</div>`;
+    A.querySelectorAll('.tk[data-t]').forEach(b=>b.onclick=()=>answer(+b.dataset.t));speak(it.w)}}
+function answer(a){if(!AR||AR.lock||AR.over)return;AR.lock=true;const it=AR.cur,fb=$('#fb');
+  if(a===it.a){AR.streak++;const mult=AR.streak>=10?3:AR.streak>=5?2:1;AR.score+=mult;SFX.ok();if(mult>1)SFX.combo(AR.streak);
+    $('#sc').textContent=AR.score;$('#cb').textContent=mult>1?`COMBO ×${mult}`:'';fb.innerHTML=`<span class="ok">${esc(it.show)}</span>`;if(!it.say)speak(it.show.split(' · ')[0].replace('→',''));setTimeout(nextItem,380)}
+  else{AR.streak=0;$('#cb').textContent='';SFX.no();AR.miss.push(it);const g=AR.g;fb.innerHTML=`<span class="no">${esc(it.show)}</span>`;
+    const cd=$('#ar .card');if(cd){cd.classList.remove('shake');void cd.offsetWidth;cd.classList.add('shake')}setTimeout(nextItem,1300)}}
+function arcadeEnd(){AR.over=true;SFX.end();const g=AR.g;const prev=st.best[g.id];const nb=prev==null||AR.score>prev;if(nb)st.best[g.id]=AR.score;save();
+  const ms=[...new Map(AR.miss.map(m=>[m.show,m])).values()];
+  $('#ar').innerHTML=`<div class="end"><h2>${AR.score} points</h2><div class="k">${nb?'New personal best.':'Best: '+prev}</div>
+    ${ms.length?`<div class="k">Learn these:<br>${ms.map(m=>esc(m.show)).join('<br>')}</div>`:'<div class="k">No misses.</div>'}<div class="k">${g.rule} · ${esc(R[g.rule])}</div></div>`;
+  $('#fb').innerHTML='';$('#act').innerHTML=`<button class="btn main" type="button" id="ag">PLAY AGAIN</button><button class="btn" type="button" id="hm">HOME</button>`;
+  $('#ag').onclick=()=>arcade(g);$('#hm').onclick=home}
+
 /* ---------- settings ---------- */
-$('#b-en').onclick=()=>{st.showEN=!st.showEN;store.set('en',st.showEN);document.querySelectorAll('.ln .en').forEach(e=>e.hidden=!st.showEN);$('#b-en').style.color=st.showEN?'var(--lamp)':''};
-$('#b-en').style.color=st.showEN?'var(--lamp)':'';
+$('#b-home').onclick=()=>{if(AR)AR.over=true;home()};
+$('#b-en').onclick=()=>{st.en=!st.en;store.set('en',st.en);document.querySelectorAll('.ln .en').forEach(e=>e.hidden=!st.en);$('#b-en').classList.toggle('on',st.en)};$('#b-en').classList.toggle('on',st.en);
 function voiceSheet(){loadV();const cur=(VO.find(v=>v.name===store.get('voice',null))||VO[0]||{}).name;
-  $('#sheet-in').innerHTML=`<b>VOICE</b>${VO.length?VO.map(v=>`<div class="vrow ${v.name===cur?'on':''}"><span>${esc(v.name)}</span><button class="btn" type="button" data-v="${esc(v.name)}">${v.name===cur?'IN USE':'USE'}</button></div>`).join(''):'<span>No Danish voice on this device, so lines are shown without sound.</span>'}
-    <span style="color:var(--dim)">iPhone: Settings › Accessibility › Spoken Content › Voices › Danish, then download an Enhanced voice. Android: Settings › Text-to-speech › Danish. Reload afterwards.</span><button class="btn" type="button" id="vx">CLOSE</button>`;
-  $('#sheet').hidden=false;document.querySelectorAll('[data-v]').forEach(x=>x.onclick=()=>{store.set('voice',x.dataset.v);speak('Hej! Er du ny her?',S.man);voiceSheet()});$('#vx').onclick=()=>$('#sheet').hidden=true}
+  $('#sheet-in').innerHTML=`<b>Voice</b>${VO.length?VO.map(v=>`<div class="vrow ${v.name===cur?'on':''}"><span>${esc(v.name)}</span><button class="btn" type="button" data-v="${esc(v.name)}">${v.name===cur?'IN USE':'USE'}</button></div>`).join(''):'<span>No Danish voice on this device, so the lines are shown without sound.</span>'}
+    <span class="k">iPhone: Settings › Accessibility › Spoken Content › Voices › Danish, then download an Enhanced voice. Android: Settings › Text-to-speech › Danish. Reload afterwards.</span><button class="btn" type="button" id="vx">CLOSE</button>`;
+  $('#sheet').hidden=false;document.querySelectorAll('[data-v]').forEach(x=>x.onclick=()=>{store.set('voice',x.dataset.v);speak('Hej! Er du ny her?',SP.man);voiceSheet()});$('#vx').onclick=()=>$('#sheet').hidden=true}
 $('#b-voice').onclick=voiceSheet;
-$('#b-home').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}menu()};
-menu();
-window.SCENES=SCENES;window.ST=st;
+home();
+window.SCENES=SCENES;window.ST=st;window.GAMES=GAMES;window.ARC=()=>AR;
 </script>

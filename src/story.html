@@ -1,0 +1,310 @@
+<title>Små scener</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a film still on top, the scene's lines below, the action at the thumb. One column, nothing scrolls sideways. */
+:root{
+  --bg:#0a0d12; --panel:#11161e; --line:#252e3b; --ink:#ece6d8; --dim:#8b94a1; --lamp:#e7b45a; --coat:#d2463c; --ok:#86c2a6;
+  --vera:#c9a0dc; --ole:#8fc1e3; --phone:#e7b45a;
+  --f-story:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-ui:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 var(--f-story);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+#app{max-width:480px;margin:0 auto;height:100%;display:flex;flex-direction:column}
+.bar{height:3px;background:var(--line);margin-top:8px;border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;background:var(--lamp);width:0;transition:width .4s}
+.top{display:flex;justify-content:space-between;align-items:center;padding-block:8px 6px;font:600 11px var(--f-ui);letter-spacing:.12em;color:var(--dim)}
+.top button{border:1px solid var(--line);border-radius:4px;padding:5px 8px;font:600 11px var(--f-ui);letter-spacing:.08em;color:var(--dim)}
+.still{position:relative;border-radius:6px;overflow:hidden;aspect-ratio:16/10;max-height:34vh;width:100%;background:#06080b;flex:0 0 auto}
+.still svg{display:block;width:100%;height:100%}
+.place{position:absolute;left:10px;bottom:8px;font:600 11px var(--f-ui);letter-spacing:.14em;color:var(--ink);text-shadow:0 1px 4px #000}
+.lines{flex:1;min-height:0;overflow:auto;padding-block:14px 8px;display:flex;flex-direction:column;gap:12px}
+.ln{animation:in .35s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.ln .who{font:600 11px var(--f-ui);letter-spacing:.12em;margin-bottom:2px}
+.ln .da{font-size:21px;line-height:1.35}
+.ln.narr .da{font-style:italic;color:#d8d2c4}
+.ln .en{font:14px/1.4 var(--f-ui);color:var(--dim);margin-top:3px}
+.ln.solved .da{color:var(--ok)}
+.w-vera{color:var(--vera)} .w-ole{color:var(--ole)} .w-phone{color:var(--phone)} .w-note{color:var(--ink)}
+.act{flex:0 0 auto;padding-block:10px calc(12px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;border-top:1px solid var(--line)}
+.tapnext{font:600 12px var(--f-ui);letter-spacing:.12em;color:var(--dim);text-align:center;padding:12px 0}
+.q{font:13px var(--f-ui);color:var(--lamp);letter-spacing:.02em}
+.gapline{font-size:21px;line-height:1.35}
+.gap{display:inline-block;min-width:3.2em;border-bottom:2px solid var(--lamp);text-align:center;color:var(--lamp)}
+.opts{display:grid;gap:8px}
+.opt{border:1px solid var(--line);border-radius:6px;padding:12px 14px;text-align:left;font-size:19px;background:var(--panel)}
+.opt[disabled]{opacity:.35;text-decoration:line-through}
+.opt.right{border-color:var(--ok);color:var(--ok)}
+.pieces,.built{display:flex;flex-wrap:wrap;gap:8px;min-height:46px}
+.built{border:1px dashed var(--line);border-radius:6px;padding:8px}
+.pc{border:1px solid var(--line);background:var(--panel);border-radius:5px;padding:9px 12px;font-size:19px}
+.pc.used{visibility:hidden}
+.built .pc{border-color:var(--lamp)}
+.why{border-left:3px solid var(--coat);padding:6px 10px;font:14px/1.45 var(--f-ui);color:var(--ink);background:rgba(210,70,60,.08)}
+.why b{color:var(--coat)}
+.shake{animation:sh .35s}
+@keyframes sh{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pad button{height:52px;border:1px solid var(--line);border-radius:6px;background:var(--panel);font:600 20px var(--f-ui)}
+.code{display:flex;gap:10px;justify-content:center;font:600 30px var(--f-ui)}
+.code span{width:44px;height:54px;border-bottom:2px solid var(--lamp);display:grid;place-items:center}
+.replay{justify-self:start;border:1px solid var(--lamp);color:var(--lamp);border-radius:20px;padding:6px 14px;font:600 12px var(--f-ui);letter-spacing:.08em}
+.end{display:grid;gap:14px;padding-block:16px}
+.end h2{font:italic 400 40px/1.05 var(--f-story);margin:0}
+.end .k{font:12px/1.6 var(--f-ui);color:var(--dim)}
+.btn{min-height:48px;border-radius:6px;border:1px solid var(--line);font:600 14px var(--f-ui);letter-spacing:.06em;padding:0 16px}
+.scard{display:grid;grid-template-columns:30px 1fr 20px;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--panel)}
+.scard .sn{font:600 13px var(--f-ui);color:var(--lamp)}.scard b{display:block;font-size:20px;font-weight:600}.scard small{font:12px var(--f-ui);color:var(--dim)}.scard .sd{color:var(--ok);font:600 16px var(--f-ui)}
+.w-you{color:var(--ink)}
+.btn.main{background:var(--lamp);border-color:var(--lamp);color:var(--bg)}
+.sheet{position:fixed;inset:0;background:rgba(4,6,9,.75);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.sheet>div{width:100%;max-width:480px;background:var(--panel);border-radius:10px 10px 0 0;padding:18px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));box-sizing:border-box;display:grid;gap:10px;max-height:80%;overflow:auto;font:14px/1.5 var(--f-ui)}
+.vrow{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.vrow.on{border-color:var(--lamp)}
+.rain line{stroke:rgba(180,200,230,.35);stroke-width:1;animation:rain .9s linear infinite}
+@keyframes rain{from{transform:translateY(-40px)}to{transform:translateY(60px)}}
+.flick{animation:fl 4s infinite}
+@keyframes fl{0%,92%,100%{opacity:1}93%{opacity:.4}95%{opacity:.9}97%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+
+<div id="app">
+  <div class="bar"><i id="prog"></i></div>
+  <div class="top"><span id="ep">CHAPTER 1 · SCENES</span><span style="display:flex;gap:6px"><button id="b-home" type="button">SCENES</button><button id="b-en" type="button">EN</button><button id="b-voice" type="button">VOICE</button></span></div>
+  <div class="still" id="still"></div>
+  <div class="lines" id="lines" aria-live="polite"></div>
+  <div class="act" id="act"></div>
+</div>
+<div class="sheet" id="sheet" hidden><div id="sheet-in"></div></div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('noeglen1:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('noeglen1:'+k,JSON.stringify(v))}catch(e){}}};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ---------- rules (chapter 1) ---------- */
+const R={R0:'Jobs take no article',R1:'på grund af + a noun',R2:'for at + infinitive',R3:'After fordi / når, ikke comes before the verb',
+ R5:'The verb comes second',R6:'Past tense',R7:'for … siden · om · i',R8:'når · da · hvornår',R9:'Where the adverb goes',R10:'Place words',
+ R11:'i or på with a street',R12:'en/et and the definite form',R13:'den · det · de · der',R14:'Short answers',R15:'glad for · træt af',R16:'mange · meget',R17:'Compound words'};
+const S={narr:{who:'',cls:'narr',pitch:1,rate:.95},you:{who:'YOU',cls:'w-you',pitch:1,rate:.95},man:{who:'THE MAN',cls:'w-ole',pitch:.85,rate:1},
+ tomas:{who:'TOMAS',cls:'w-ole',pitch:.85,rate:1},mikkel:{who:'MIKKEL',cls:'w-ole',pitch:.9,rate:1},mor:{who:'MOR',cls:'w-vera',pitch:1.2,rate:.92},
+ kvinde:{who:'THE WOMAN',cls:'w-vera',pitch:1.15,rate:.95},bent:{who:'BENT',cls:'w-phone',pitch:.75,rate:.95}};
+const C=(id,line,opts,rule,why,o={})=>({p:'choose',id,line,opts,ok:0,rule,why,...o});
+const SCENES=[
+ {id:'kaffe',title:'Kaffemaskinen',place:'KONTORET · 09:00',sec:'Hvorfor flyttede du til Danmark?',art:'kaffe',beats:[
+  {s:'narr',da:'Klokken er ni. Du står ved kaffemaskinen.',en:"It's nine o'clock. You're standing at the coffee machine."},
+  {s:'man',da:'Hej! Er du ny her?',en:'Hi! Are you new here?'},
+  C('k1','___',['Ja, det er jeg.','Ja, det gør jeg.','Ja, jeg er.'],'R14','The question uses er, so the short answer repeats er: Ja, det er jeg. With other verbs you use gør.',{q:'Answer: yes, you are.',s:'you',en:'Yes, I am.'}),
+  {s:'man',da:'Velkommen! Hvad lavede du, før du kom hertil?',en:'Welcome! What did you do before you came here?'},
+  C('k2','Jeg ___ som designer i Berlin.',['arbejdede','arbejdte','arbejder'],'R6','arbejde takes -ede in the past: arbejdede. arbejder is the present.',{q:'Your old job.',s:'you',en:'I worked as a designer in Berlin.'}),
+  C('k3','Jeg var ___.',['designer','en designer'],'R0','After er, var or arbejdede som, a job has no article: Jeg var designer.',{q:'Say what you were.',s:'you',en:'I was a designer.'}),
+  {s:'man',da:'Og hvorfor kom du hertil?',en:'And why did you come here?'},
+  C('k4','Jeg kom hertil ___ arbejde her.',['for at','fordi','på grund af'],'R2','for at + a verb in the infinitive (arbejde) = in order to. fordi needs a whole clause; på grund af needs a noun.',{q:'Your reason.',s:'you',en:'I came here to work here.'}),
+  {p:'order',id:'k5',q:'One more reason. Finish the sentence.',s:'you',prefix:'Jeg flyttede også, fordi',pieces:['jeg','gerne','ville','prøve','noget nyt'],
+   answers:[['Jeg flyttede også, fordi jeg gerne ville prøve noget nyt.',['jeg','gerne','ville','prøve','noget nyt']]],en:'I also moved because I wanted to try something new.',rule:'R3',why:'After fordi, gerne and ikke come before the verb: fordi jeg gerne ville. In a main clause it is: jeg ville gerne.'},
+  {p:'order',id:'k6',q:'Tell him where you lived.',s:'you',pieces:['før jeg flyttede hertil','boede','jeg','i Berlin'],
+   answers:[['Før jeg flyttede hertil, boede jeg i Berlin.',['før jeg flyttede hertil','boede','jeg','i berlin']],['Jeg boede i Berlin, før jeg flyttede hertil.',['jeg','boede','i berlin','før jeg flyttede hertil']]],
+   en:'Before I moved here, I lived in Berlin.',rule:'R5',why:'When the før-clause comes first, it fills the first place, so the verb comes next: boede jeg.'},
+  {p:'listen',id:'k7',q:'Listen. When is his meeting?',s:'man',say:'Jeg har et møde om fem minutter.',opts:['In five minutes.','Five minutes ago.','For five minutes.'],ok:0,rule:'R7',why:'om fem minutter = five minutes from now. for fem minutter siden = five minutes ago. i fem minutter = for five minutes.'},
+  {s:'man',da:'Med den nye designer.',en:'With the new designer.'},
+  {s:'narr',da:'Han smiler.',en:'He smiles.'},
+  {s:'man',da:'Det er dig. Jeg er din nye chef. Vi ses om fem minutter.',en:"That's you. I'm your new boss. See you in five minutes."}]},
+ {id:'middag',title:'Middagen',place:'HOS SARA · 19:30',sec:'Hvorfor flyttede du til Danmark?',art:'middag',beats:[
+  {s:'narr',da:'Du er til middag hos din veninde Sara. Ved bordet sidder en mand, du ikke kender.',en:"You're at dinner at your friend Sara's. At the table sits a man you don't know."},
+  {s:'tomas',da:'Hej, jeg hedder Tomas. Jeg er fra Tyskland.',en:"Hi, I'm Tomas. I'm from Germany."},
+  C('m1','Hvorfor ___ du til Danmark?',['flyttede','flyttet','flytted'],'R6','flytte takes -ede in the past: flyttede.',{q:'Ask him why he moved.',s:'you',en:'Why did you move to Denmark?'}),
+  C('m2','Jeg flyttede hertil ___ en kvinde.',['på grund af','for at','fordi'],'R1','på grund af takes a noun (en kvinde). for at needs a verb; fordi needs a whole clause.',{q:'His answer.',s:'tomas',en:'I moved here because of a woman.'}),
+  {s:'you',da:'Nåh. Og hvad lavede du i Tyskland?',en:'Oh. And what did you do in Germany?'},
+  C('m3','Jeg ___ i fransk på en skole.',['underviste','undervisede','undervist'],'R6','undervise takes -te in the past: underviste. Like læse → læste and købe → købte.',{q:'He taught French.',s:'tomas',en:'I taught French at a school.'}),
+  {s:'tomas',da:'Men her kunne jeg ikke finde arbejde. Så nu har jeg min egen restaurant.',en:"But here I couldn't find work. So now I have my own restaurant."},
+  {p:'order',id:'m4',q:'Why does he have a restaurant?',s:'narr',prefix:'Han har en restaurant, fordi',pieces:['han','kunne','ikke','finde arbejde'],
+   answers:[['Han har en restaurant, fordi han ikke kunne finde arbejde.',['han','ikke','kunne','finde arbejde']]],en:"He has a restaurant because he couldn't find work.",rule:'R3',why:'After fordi, ikke comes before the verb: fordi han ikke kunne. In a main clause it is: han kunne ikke.'},
+  {s:'you',da:'Og kvinden? Hvor er hun?',en:'And the woman? Where is she?'},
+  {p:'listen',id:'m5',q:'Listen. Where is she?',s:'tomas',say:'Hun sidder ved siden af dig.',opts:['Next to you.','Opposite you.','Close to the kitchen.'],ok:0,rule:'R10',why:'ved siden af = next to. overfor = opposite. tæt på = close to.'},
+  {s:'narr',da:'Ved siden af dig sidder Saras mor. Hun er 71. Hun vinker.',en:"Next to you sits Sara's mother. She is 71. She waves."}]},
+ {id:'bio',title:'Biografen',place:'PÅ VEJ I BIOGRAFEN · 20:10',sec:'Hvor længe skal du være her?',art:'bio',beats:[
+  {s:'narr',da:'Du og din ven Mikkel er på vej i biografen.',en:'You and your friend Mikkel are on your way to the cinema.'},
+  {s:'mikkel',da:'Hvornår flyttede du egentlig hertil?',en:'When did you actually move here?'},
+  C('b1','Jeg flyttede hertil ___ et halvt år siden.',['for','om','i'],'R7','for … siden = ago: for et halvt år siden.',{q:'Half a year ago.',s:'you',en:'I moved here half a year ago.'}),
+  {s:'mikkel',da:'Og hvor længe skal du være her?',en:'And how long will you be here?'},
+  C('b2','Jeg skal være her ___ to år.',['i','om','for'],'R7','i = a length of time: i to år (for two years). om = from now.',{q:'Two years.',s:'you',en:"I'll be here for two years."}),
+  C('b3','Jeg rejser hjem, ___ min kontrakt udløber.',['når','da','hvornår'],'R8','når = when, about the future (or every time). da = one time in the past. hvornår asks a question.',{q:'And then?',s:'you',en:'I go home when my contract runs out.'}),
+  {s:'mikkel',da:'Er du glad for at bo her?',en:'Are you happy living here?'},
+  C('b4','___',['Ja, det er jeg.','Ja, det gør jeg.'],'R14','The question uses er, so: Ja, det er jeg.',{q:'Answer: yes.',s:'you',en:'Yes, I am.'}),
+  {p:'order',id:'b5',q:'Finish the sentence.',s:'you',prefix:'Men',pieces:['jeg','savner','nogle gange','min familie'],
+   answers:[['Men jeg savner nogle gange min familie.',['jeg','savner','nogle gange','min familie']],['Men nogle gange savner jeg min familie.',['nogle gange','savner','jeg','min familie']],['Men jeg savner min familie nogle gange.',['jeg','savner','min familie','nogle gange']]],
+   en:'But sometimes I miss my family.',rule:'R9',why:'In a main clause the adverb comes after the verb: jeg savner nogle gange. If it stands first, the verb still comes second: nogle gange savner jeg.'},
+  {s:'mikkel',da:'Hvornår begynder filmen?',en:'When does the film start?'},
+  {s:'narr',da:'Du kigger på billetterne.',en:'You look at the tickets.'},
+  {p:'listen',id:'b6',q:'Listen. What happened?',s:'narr',say:'Filmen begyndte for en time siden.',opts:['The film started an hour ago.','The film starts in an hour.','The film lasts an hour.'],ok:0,rule:'R7',why:'begyndte is past, and for en time siden = an hour ago.'},
+  {s:'mikkel',da:'Nåh. Så tager vi en øl i stedet.',en:"Oh well. Then we'll have a beer instead."}]},
+ {id:'mor',title:'Mor ringer',place:'SØNDAG AFTEN',sec:'Hvor længe skal du være her?',art:'mor',beats:[
+  {s:'narr',da:'Søndag aften ringer din mor.',en:'On Sunday evening your mother calls.'},
+  {s:'mor',da:'Hej skat! Er du glad for at være i Danmark?',en:'Hi darling! Are you happy being in Denmark?'},
+  C('o1','Ja, men jeg savner dig, når ___.',['jeg ikke har nogen at snakke med','jeg har ikke nogen at snakke med','har jeg ikke nogen at snakke med'],'R3','After når (and fordi, da, at), ikke comes before the verb: når jeg ikke har.',{q:'Yes, but …',s:'you',en:"Yes, but I miss you when I don't have anyone to talk to."}),
+  {s:'mor',da:'Hvad savner du mest?',en:'What do you miss most?'},
+  {p:'order',id:'o2',q:'Tell her.',s:'you',pieces:['når det regner','savner','jeg','vejret derhjemme'],
+   answers:[['Når det regner, savner jeg vejret derhjemme.',['når det regner','savner','jeg','vejret derhjemme']],['Jeg savner vejret derhjemme, når det regner.',['jeg','savner','vejret derhjemme','når det regner']]],
+   en:'When it rains, I miss the weather back home.',rule:'R5',why:'A når-clause can stand first. Then it fills the first place, and the verb comes next: savner jeg.'},
+  {s:'mor',da:'Og maden?',en:'And the food?'},
+  C('o3','Ja, jeg ___ maden.',['savner også','også savner'],'R9','In a main clause, også comes after the verb: jeg savner også.',{q:'The food too.',s:'you',en:'Yes, I miss the food too.'}),
+  {s:'mor',da:'Hvornår kommer du hjem?',en:'When are you coming home?'},
+  C('o4','___ seks måneder.',['Om','For','I'],'R7','om = from now: om seks måneder (in six months).',{q:'In six months.',s:'you',en:'In six months.'}),
+  {p:'listen',id:'o5',q:'Listen. What is she saying?',s:'mor',say:'Seks måneder? Nej. Jeg kommer om to timer.',opts:['She is coming in two hours.','She came two hours ago.','She is staying for two hours.'],ok:0,rule:'R7',why:'om to timer = two hours from now.'},
+  {s:'mor',da:'Jeg er i lufthavnen. Er der en god bager i nærheden af dig?',en:"I'm at the airport. Is there a good bakery near you?"},
+  C('o6','Ja, ___ er der.',['det','der','den'],'R13','The short answer to "Er der …?" is: Ja, det er der.',{q:'Yes, there is.',s:'you',en:'Yes, there is.'}),
+  {s:'narr',da:'Du kigger rundt i lejligheden. Den er ikke ren.',en:"You look around the flat. It isn't clean."}]},
+ {id:'apotek',title:'Apoteket',place:'NØRREBRO · LØRDAG',sec:'Hvor ligger den henne?',art:'apotek',beats:[
+  {s:'narr',da:'Du er ny på Nørrebro, og du har hovedpine.',en:"You're new in Nørrebro, and you have a headache."},
+  C('a1','Undskyld, er der ___ apotek her i nærheden?',['et','en','det'],'R12','apotek is an et-word, and it is new in the conversation, so: et apotek.',{q:'Ask a woman.',s:'you',en:'Excuse me, is there a pharmacy near here?'}),
+  {s:'kvinde',da:'Ja, der ligger et apotek i Blågårdsgade.',en:'Yes, there is a pharmacy on Blågårdsgade.'},
+  C('a2','Hvor i Blågårdsgade ligger ___?',['det','den','de'],'R13','et apotek → det. An en-word would be den; a plural would be de.',{q:'Where exactly?',s:'you',en:'Where on Blågårdsgade is it?'}),
+  {p:'listen',id:'a3',q:'Listen. Where is it?',s:'kvinde',say:'Det ligger lige overfor kirken, ved siden af bageren.',opts:['Opposite the church, next to the bakery.','Next to the church, opposite the bakery.','Near the church, behind the bakery.'],ok:0,rule:'R10',why:'overfor = opposite. ved siden af = next to. lige makes it exact.'},
+  {s:'kvinde',da:'Bor du her i nærheden?',en:'Do you live near here?'},
+  C('a4','Ja, jeg bor ___ Jagtvej.',['på','i'],'R11','Jagtvej is a -vej, so på. Blågårdsgade is a -gade, so i.',{q:'Where you live.',s:'you',en:'Yes, I live on Jagtvej.'}),
+  {s:'kvinde',da:'Og du kan ikke finde apoteket?',en:"And you can't find the pharmacy?"},
+  C('a5','Nej. Jeg har ledt efter ___ i en time.',['apoteket','et apotek','apotek'],'R12','Now you both know which pharmacy, so the definite form: apoteket. (i en time = for an hour.)',{q:'No.',s:'you',en:"No. I've been looking for the pharmacy for an hour."}),
+  {s:'narr',da:'Hun peger. Blågårdsgade er lige her. Apoteket ligger lige bag dig.',en:'She points. Blågårdsgade is right here. The pharmacy is right behind you.'}]},
+ {id:'vaerelse',title:'Værelset',place:'ET VÆRELSE TIL LEJE',sec:'Hvor ligger den henne?',art:'vaerelse',beats:[
+  {s:'narr',da:'Du skal leje et værelse. Udlejeren hedder Bent.',en:"You're going to rent a room. The landlord is called Bent."},
+  {s:'bent',da:'Velkommen! Værelset er lille, men der er meget lys.',en:"Welcome! The room is small, but there's a lot of light."},
+  {s:'you',da:'Er du glad for at bo her, Bent?',en:'Are you happy living here, Bent?'},
+  C('v1','___',['Ja, det er jeg.','Ja, det gør jeg.'],'R14','The question uses er, so: Ja, det er jeg.',{q:'Bent answers yes.',s:'bent',en:'Yes, I am.'}),
+  {s:'bent',da:'Der er mange caféer og butikker, og det kan jeg godt lide.',en:'There are lots of cafés and shops, and I like that.'},
+  C('v2','Men der er ___ trafik.',['meget','mange'],'R16','trafik cannot be counted, so meget. Countable things take mange: mange biler.',{q:'But …',s:'bent',en:"But there's a lot of traffic."}),
+  C('v3','Og det er jeg lidt træt ___.',['af','for','på'],'R15','It is always træt af (tired of) and glad for (happy with). Learn them as pairs.',{q:'How he feels about it.',s:'bent',en:"And I'm a bit tired of it."}),
+  C('v4','Nedenunder ligger min ___.',['yndlingsbager','bageryndlings','yndlings bager'],'R17','yndlings- goes in front and is written together: yndlingsbager, yndlingscafé. The last part decides en or et.',{q:'His favourite bakery.',s:'bent',en:'Downstairs is my favourite bakery.'}),
+  {s:'bent',da:'Kender du den?',en:'Do you know it?'},
+  C('v5','___',['Næ, det gør jeg ikke.','Næ, det er jeg ikke.','Næ, jeg kender ikke.'],'R14','kende is a normal verb, so the short answer uses gør: Næ, det gør jeg ikke.',{q:'Answer: no.',s:'you',en:"No, I don't."}),
+  {s:'you',da:'Og vaskemaskinen?',en:'And the washing machine?'},
+  C('v6','___ står i kælderen.',['Den','Det','De'],'R13','en vaskemaskine → den.',{q:'Where is it?',s:'bent',en:"It's in the basement."}),
+  {p:'listen',id:'v7',q:'Listen. When does the baker start?',s:'bent',say:'Bageren begynder at bage klokken fire om morgenen.',opts:['At four in the morning.','At four in the afternoon.','In four hours.'],ok:0,rule:'R7',why:'klokken fire om morgenen = at four in the morning. In four hours would be om fire timer.'},
+  {s:'bent',da:'Og ja. Derfor er værelset så billigt.',en:"And yes. That's why the room is so cheap."}]}
+];
+SCENES.forEach(sc=>sc.beats.forEach(b=>{if(b.p)b.scene=sc.id}));
+
+/* ---------- art: one still per scene ---------- */
+const rain=(n,w,h)=>{let s='<g class="rain">';for(let i=0;i<n;i++){const x=(i*37)%w,y=(i*53)%h;s+=`<line x1="${x}" y1="${y}" x2="${x-4}" y2="${y+14}" style="animation-delay:${(i%9)*-.1}s"/>`}return s+'</g>'};
+const glow=(id,c,o)=>`<radialGradient id="${id}"><stop offset="0" stop-color="${c}" stop-opacity="${o}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`;
+const ART={
+kaffe:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g1','#e7b45a','.35')}</defs><rect width="320" height="200" fill="#121821"/><rect x="190" y="20" width="110" height="80" fill="#1d2a3a"/><line x1="245" y1="20" x2="245" y2="100" stroke="#121821" stroke-width="3"/>
+<rect x="60" y="50" width="80" height="120" rx="6" fill="#0b0e13" stroke="#3a4658"/><rect x="72" y="62" width="56" height="18" rx="2" fill="#86c2a6" class="flick"/><rect x="88" y="120" width="24" height="26" fill="#ece6d8"/><circle cx="100" cy="120" r="50" fill="url(#g1)"/>
+<path d="M95 112c-6-8 6-12 0-20M105 112c-6-8 6-12 0-20" stroke="#ece6d8" stroke-opacity=".5" fill="none"/><rect y="170" width="320" height="30" fill="#0a0d12"/></svg>`,
+middag:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g2','#e7b45a','.45')}</defs><rect width="320" height="200" fill="#140f0c"/><circle cx="160" cy="90" r="120" fill="url(#g2)"/><ellipse cx="160" cy="140" rx="140" ry="34" fill="#2a1d15"/>
+<ellipse cx="100" cy="140" rx="22" ry="8" fill="#ece6d8"/><ellipse cx="220" cy="140" rx="22" ry="8" fill="#ece6d8"/><rect x="156" y="96" width="8" height="34" fill="#ece6d8"/><path d="M160 82c-5 6-3 12 0 14 3-2 5-8 0-14z" fill="#e7b45a" class="flick"/>
+<path d="M128 120l6 18M190 120l-6 18" stroke="#d2463c" stroke-width="5"/><circle cx="40" cy="80" r="16" fill="#0a0806"/><rect x="24" y="96" width="32" height="40" fill="#0a0806"/><circle cx="282" cy="80" r="16" fill="#0a0806"/><rect x="266" y="96" width="32" height="40" fill="#0a0806"/></svg>`,
+bio:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#0b0d14"/><rect x="70" y="30" width="180" height="130" fill="#141a26"/><rect x="90" y="44" width="140" height="34" fill="#1d1410" stroke="#e7b45a"/>
+<text x="160" y="68" text-anchor="middle" font-family="monospace" font-weight="700" font-size="18" fill="#e7b45a" letter-spacing="6" class="flick">BIOGRAF</text>${Array.from({length:14},(_,i)=>`<circle cx="${96+i*10}" cy="86" r="2" fill="#e7b45a" opacity="${i%2?.9:.4}"/>`).join('')}
+<rect x="130" y="100" width="60" height="60" fill="#e7b45a" opacity=".18"/>${rain(36,320,200)}<rect y="160" width="320" height="40" fill="#0e121b"/></svg>`,
+mor:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><defs>${glow('g3','#86c2a6','.35')}</defs><rect width="320" height="200" fill="#0a0c10"/><circle cx="160" cy="100" r="110" fill="url(#g3)"/><rect x="128" y="34" width="64" height="132" rx="10" fill="#0d1a16" stroke="#86c2a6"/>
+<text x="160" y="84" text-anchor="middle" font-family="monospace" font-size="16" fill="#ece6d8" font-weight="700">MOR</text><circle cx="160" cy="128" r="12" fill="#86c2a6" class="flick"/><path d="M110 70a60 60 0 0 0 0 60M210 70a60 60 0 0 1 0 60" stroke="#86c2a6" stroke-opacity=".5" fill="none" class="flick"/></svg>`,
+apotek:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#151b24"/><path d="M40 160V60l20-40 20 40v100z" fill="#0d1118"/><rect x="110" y="70" width="190" height="90" fill="#0f141c"/><rect x="200" y="40" width="70" height="26" fill="#0f141c" stroke="#86c2a6"/>
+<text x="235" y="58" text-anchor="middle" font-family="monospace" font-weight="700" font-size="11" fill="#86c2a6" letter-spacing="2">APOTEK</text><path d="M186 46h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="#86c2a6" class="flick"/><rect x="130" y="96" width="50" height="44" fill="#e7b45a" opacity=".25"/>
+<rect x="216" y="96" width="60" height="64" fill="#86c2a6" opacity=".14"/><rect y="160" width="320" height="40" fill="#0b0f15"/><circle cx="150" cy="176" r="5" fill="#ece6d8"/><path d="M145 200l5-20 5 20" fill="#ece6d8"/></svg>`,
+vaerelse:`<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"><rect width="320" height="200" fill="#1a1712"/><rect x="110" y="24" width="100" height="110" fill="#cfd8e0"/><line x1="160" y1="24" x2="160" y2="134" stroke="#1a1712" stroke-width="4"/><line x1="110" y1="80" x2="210" y2="80" stroke="#1a1712" stroke-width="4"/>
+<path d="M110 134L60 200h200l-50-66z" fill="#cfd8e0" opacity=".12"/><rect x="20" y="120" width="70" height="40" fill="#2a2219"/><rect y="186" width="320" height="14" fill="#0e0c09"/><text x="160" y="196" text-anchor="middle" font-family="monospace" font-size="8" fill="#e7b45a" letter-spacing="3" class="flick">BAGERI · ÅBEN 04.00</text></svg>`
+};
+/* ---------- sound ---------- */
+let AC=null,amb=null;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+function tone(f,d,type='sine',v=.15,w=0){const a=ac();if(!a)return;const t=a.currentTime+w,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05)}
+function rainOn(){const a=ac();if(!a||amb)return;const b=a.createBuffer(1,a.sampleRate*2,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const s=a.createBufferSource();s.buffer=b;s.loop=true;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=900;const g=a.createGain();g.gain.value=.035;s.connect(f);f.connect(g);g.connect(a.destination);s.start();amb=s}
+function rainOff(){if(amb){try{amb.stop()}catch(e){}amb=null}}
+const SFX={ok(){tone(660,.2,'triangle',.1);tone(990,.35,'triangle',.08,.08)},no(){tone(150,.3,'sawtooth',.08)},
+  knock(){[0,.22,.44].forEach(w=>tone(90,.18,'sine',.5,w))},ring(){for(let k=0;k<4;k++){tone(1400,.08,'square',.04,k*.25);tone(1700,.08,'square',.04,k*.25+.09)}},open(){tone(220,.15,'square',.06);tone(330,.3,'triangle',.08,.1)}};
+
+/* ---------- voice ---------- */
+let VO=[];function loadV(){try{VO=(speechSynthesis.getVoices()||[]).filter(v=>/^da([-_]|$)/i.test(v.lang))}catch(e){VO=[]}}
+if('speechSynthesis' in window){loadV();try{speechSynthesis.onvoiceschanged=loadV}catch(e){}}
+function speak(t,p={}){return new Promise(res=>{if(!('speechSynthesis' in window)||!VO.length){setTimeout(res,200);return}let done=false;const f=()=>{if(!done){done=true;res()}};
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='da-DK';const n=store.get('voice',null);u.voice=VO.find(v=>v.name===n)||VO[0];u.pitch=p.pitch||1;u.rate=p.rate||.95;u.onend=f;u.onerror=f;speechSynthesis.speak(u)}catch(e){f()}setTimeout(f,1500+t.length*90)})}
+
+/* ---------- engine ---------- */
+const st={sc:null,i:0,done:store.get('done',{}),miss:store.get('miss',{}),showEN:store.get('en',false),review:null,lastWrong:null,first:0,total:0};
+const lines=$('#lines'),act=$('#act');
+const ALL=SCENES.flatMap(sc=>sc.beats.filter(b=>b.p));
+function save(){store.set('done',st.done);store.set('miss',st.miss)}
+function prog(){$('#prog').style.width=st.sc?Math.round(100*st.i/st.sc.beats.length)+'%':'0%'}
+function addLine(sp,da,en,cls=''){const S0=S[sp]||S.narr;const d=document.createElement('div');d.className='ln '+(sp==='narr'?'narr ':'')+cls;
+  d.innerHTML=`${S0.who?`<div class="who ${S0.cls}">${S0.who}</div>`:''}<div class="da">${esc(da)}</div><div class="en" ${st.showEN?'':'hidden'}>${esc(en||'')}</div>`;
+  d.onclick=()=>{const e=d.querySelector('.en');e.hidden=!e.hidden;speak(da,S0)};lines.appendChild(d);d.scrollIntoView({block:'end',behavior:'smooth'});return d}
+function menu(){st.sc=null;st.review=null;prog();$('#ep').textContent='CHAPTER 1 · SCENES';$('#still').hidden=true;
+  const missN=Object.values(st.miss).reduce((a,b)=>a+b,0);
+  lines.innerHTML=`<div class="end" style="padding-block:4px"><h2>Små scener.</h2><div class="k">Short situations from chapter 1, each with a surprise. Tap a line to hear it again and see the English.</div></div>`+
+   SCENES.map((sc,k)=>`<button class="scard" type="button" data-k="${k}"><span class="sn">${k+1}</span><span><b>${esc(sc.title)}</b><small>${esc(sc.sec)}</small></span><span class="sd">${st.done[sc.id]?'✓':''}</span></button>`).join('');
+  lines.querySelectorAll('.scard').forEach(b=>b.onclick=()=>{ac();play(SCENES[+b.dataset.k])});
+  const doneN=Object.keys(st.done).length;
+  act.innerHTML=doneN?`<button class="btn main" type="button" id="rv">REPEAT · 10 QUICK ROUNDS${missN?' · MISSES FIRST':''}</button>`:`<div class="k" style="font:12px var(--f-ui);color:var(--dim);text-align:center">Finish a scene to unlock the repeat round.</div>`;
+  if(doneN)$('#rv').onclick=()=>{ac();review()}}
+function play(sc){if(sc.art==='bio')rainOn();else rainOff();st.sc=sc;st.i=0;st.first=0;st.total=0;$('#still').hidden=false;$('#ep').textContent=sc.sec.toUpperCase();
+  $('#still').innerHTML=ART[sc.art]+`<div class="place">${esc(sc.place)}</div>`;lines.innerHTML='';go()}
+function go(){prog();const b=st.sc.beats[st.i];if(!b)return sceneEnd();
+  if(b.da){addLine(b.s,b.da,b.en);speak(b.da,S[b.s]);act.innerHTML='<button class="tapnext" type="button" id="nx">TAP TO CONTINUE</button>';$('#nx').onclick=next;return}
+  puzzle(b)}
+function next(){st.i++;go()}
+function miss(b){st.miss[b.id]=(st.miss[b.id]||0)+1;save()}
+function whyBox(b){return `<div class="why"><b>${b.rule} · ${esc(R[b.rule])}.</b> ${esc(b.why)}</div>`}
+function solved(b,text){SFX.ok();st.total++;if(st.lastWrong!==b.id)st.first++;
+  if(st.lastWrong!==b.id&&st.miss[b.id]&&st.review){st.miss[b.id]--;if(!st.miss[b.id])delete st.miss[b.id];save()}
+  if(text){const sp=b.s||'narr';addLine(sp,text,b.en,'solved');speak(text,S[sp])}
+  act.innerHTML=`${st.lastWrong===b.id?whyBox(b):''}<button class="tapnext" type="button" id="nx">TAP TO CONTINUE</button>`;
+  $('#nx').onclick=()=>{st.lastWrong=null;if(st.review)return reviewNext();next()}}
+function puzzle(b){
+  if(b.p==='choose'||b.p==='listen'){
+    const order=shuffle(b.opts.map((o,k)=>k));
+    const gl=b.p==='listen'||b.line==='___'?'':`<div class="gapline">${esc(b.line).replace('___','<span class="gap">?</span>')}</div>`;
+    act.innerHTML=`<div class="q">${esc(b.q||'')}</div>${b.p==='listen'?'<button class="replay" type="button" id="rp">▶ PLAY AGAIN</button>':''}${gl}<div class="opts">${order.map(k=>`<button class="opt" type="button" data-k="${k}">${esc(b.opts[k])}</button>`).join('')}</div><div id="w"></div>`;
+    if(b.p==='listen'){const pl=()=>speak(b.say,S[b.s]||S.narr);pl();$('#rp').onclick=pl}
+    act.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{const k=+o.dataset.k;
+      if(k===b.ok){o.classList.add('right');const full=b.p==='listen'?b.say:(b.line==='___'?b.opts[k]:b.line.replace('___',b.opts[k]));setTimeout(()=>solved(b,full),300)}
+      else{SFX.no();o.disabled=true;act.classList.remove('shake');void act.offsetWidth;act.classList.add('shake');if(st.lastWrong!==b.id){miss(b);st.lastWrong=b.id}$('#w').innerHTML=whyBox(b)}});
+    return}
+  if(b.p==='order'){
+    const pcs=shuffle(b.pieces.map((p,k)=>k));let built=[];
+    const draw=()=>{act.innerHTML=`<div class="q">${esc(b.q)}</div>${b.prefix?`<div class="gapline" style="color:var(--dim)">${esc(b.prefix)} …</div>`:''}<div class="built" id="bt">${built.map((k,j)=>`<button class="pc" type="button" data-j="${j}">${esc(b.pieces[k])}</button>`).join('')}</div>
+      <div class="pieces">${pcs.map(k=>`<button class="pc ${built.includes(k)?'used':''}" type="button" data-k="${k}">${esc(b.pieces[k])}</button>`).join('')}</div><div id="w"></div>`;
+      act.querySelectorAll('.pieces .pc').forEach(p=>p.onclick=()=>{built.push(+p.dataset.k);draw();check()});
+      act.querySelectorAll('#bt .pc').forEach(p=>p.onclick=()=>{built.splice(+p.dataset.j,1);draw()})};
+    const check=()=>{if(built.length<b.pieces.length)return;const words=built.map(k=>b.pieces[k].toLowerCase()).join(' ');
+      const hit=b.answers.find(a=>a[1].map(x=>x.toLowerCase()).join(' ')===words);
+      if(hit)return setTimeout(()=>solved(b,hit[0]),250);
+      SFX.no();if(st.lastWrong!==b.id){miss(b);st.lastWrong=b.id}built=[];draw();$('#w').innerHTML=whyBox(b);act.classList.remove('shake');void act.offsetWidth;act.classList.add('shake')};
+    draw();return}
+}
+function sceneEnd(){prog();const sc=st.sc;st.done[sc.id]=true;save();
+  const rules=[...new Set(sc.beats.filter(b=>b.rule).map(b=>b.rule))];const missed=sc.beats.filter(b=>b.p&&st.miss[b.id]);
+  const d=document.createElement('div');d.className='end';d.innerHTML=`<div class="k">END OF SCENE · ${st.first} OF ${st.total} RIGHT AT FIRST TRY</div>
+   <div class="k">${rules.map(r=>`${r} · ${esc(R[r])}`).join('<br>')}</div>`;lines.appendChild(d);d.scrollIntoView({block:'end'});
+  act.innerHTML=`${missed.length?`<button class="btn main" type="button" id="ek">AGAIN NOW: YOUR ${missed.length} MISS${missed.length>1?'ES':''}</button>`:''}<button class="btn ${missed.length?'':'main'}" type="button" id="mn">NEXT SCENE</button>`;
+  if(missed.length)$('#ek').onclick=()=>{st.review=shuffle(missed);lines.innerHTML='';reviewNext()};
+  $('#mn').onclick=()=>{const k=SCENES.indexOf(sc);if(k<SCENES.length-1)play(SCENES[k+1]);else menu()}}
+function review(){const done=ALL.filter(b=>st.done[b.scene]);const missed=shuffle(done.filter(b=>st.miss[b.id]));const rest=shuffle(done.filter(b=>!st.miss[b.id]));
+  st.review=[...missed,...rest].slice(0,10);st.first=0;st.total=0;st.sc=null;$('#still').hidden=true;$('#ep').textContent='REPEAT';lines.innerHTML='';reviewNext()}
+function reviewNext(){const b=st.review.shift();
+  if(!b){const d=document.createElement('div');d.className='end';d.innerHTML=`<h2>${st.first} / ${st.total}</h2><div class="k">right at first try. Misses come back first next time.</div>`;lines.appendChild(d);
+    const cur=st.sc;st.review=null;const k=cur?SCENES.indexOf(cur):-1;act.innerHTML=`<button class="btn main" type="button" id="mn">${k>=0&&k<SCENES.length-1?'NEXT SCENE':'SCENES'}</button>`;$('#mn').onclick=()=>{if(k>=0&&k<SCENES.length-1)play(SCENES[k+1]);else menu()};return}
+  if(b.p!=='listen'&&b.line&&b.line!=='___'){}lines.innerHTML='';const sc=SCENES.find(s=>s.id===b.scene);
+  const ctx=sc.beats[sc.beats.indexOf(b)-1];if(ctx&&ctx.da)addLine(ctx.s,ctx.da,ctx.en);st.lastWrong=null;puzzle(b)}
+/* ---------- settings ---------- */
+$('#b-en').onclick=()=>{st.showEN=!st.showEN;store.set('en',st.showEN);document.querySelectorAll('.ln .en').forEach(e=>e.hidden=!st.showEN);$('#b-en').style.color=st.showEN?'var(--lamp)':''};
+$('#b-en').style.color=st.showEN?'var(--lamp)':'';
+function voiceSheet(){loadV();const cur=(VO.find(v=>v.name===store.get('voice',null))||VO[0]||{}).name;
+  $('#sheet-in').innerHTML=`<b>VOICE</b>${VO.length?VO.map(v=>`<div class="vrow ${v.name===cur?'on':''}"><span>${esc(v.name)}</span><button class="btn" type="button" data-v="${esc(v.name)}">${v.name===cur?'IN USE':'USE'}</button></div>`).join(''):'<span>No Danish voice on this device, so lines are shown without sound.</span>'}
+    <span style="color:var(--dim)">iPhone: Settings › Accessibility › Spoken Content › Voices › Danish, then download an Enhanced voice. Android: Settings › Text-to-speech › Danish. Reload afterwards.</span><button class="btn" type="button" id="vx">CLOSE</button>`;
+  $('#sheet').hidden=false;document.querySelectorAll('[data-v]').forEach(x=>x.onclick=()=>{store.set('voice',x.dataset.v);speak('Hej! Er du ny her?',S.man);voiceSheet()});$('#vx').onclick=()=>$('#sheet').hidden=true}
+$('#b-voice').onclick=voiceSheet;
+$('#b-home').onclick=()=>{try{speechSynthesis.cancel()}catch(e){}menu()};
+menu();
+window.SCENES=SCENES;window.ST=st;
+</script>
